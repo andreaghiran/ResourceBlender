@@ -1,0 +1,16 @@
+﻿@model ResourceBlender.Common.ViewModels.ResourceViewModel
+@{
+    ViewBag.Title = "Delete current resource";
+}
+
+<h2>Delete current resource</h2>
+
+<div class="container">
+  <div>Are you sure you want to delete the current resource?</div>
+  @using (Html.BeginForm("DeleteResource", "Resources",new { id = Model.Id}, FormMethod.Post))
+  {
+    <input type="submit" value="Yes" class="btn btn-danger" />
+  }
+  @Html.ActionLink("Go back to homepage", "Index", "Resources", new { @class = "btn btn-info" })
+</div>
+

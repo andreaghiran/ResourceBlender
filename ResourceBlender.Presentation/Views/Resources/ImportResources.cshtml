@@ -1,0 +1,33 @@
+﻿@model ResourceBlender.Common.ViewModels.ImportFileViewModel
+
+@using (Html.BeginForm("ImportResources", "Resources", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+  @Html.AntiForgeryToken()
+
+  <div class="form-horizontal">
+    <hr />
+    <div class="row">
+      <div class="form-group">
+        @Html.ValidationMessage("RequiredFile", new { @style = "color: red;" })
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="control-label col-md-2">Select Romanian resource file.</label>
+      <div class="col-md-10">
+        @Html.TextBoxFor(model => model.files, "", new { @type = "file" })
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="control-label col-md-2">Select English resource file.</label>
+      <div class="col-md-10">
+        @Html.TextBoxFor(model => model.files, "", new { @type = "file" })
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col-md-offset-2 col-md-10">
+        <input type="submit" value="Import" class="btn btn-primary" />
+      </div>
+    </div>
+  </div>
+}
