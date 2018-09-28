@@ -6,12 +6,14 @@ using System.Web.Mvc;
 
 namespace ResourceBlender.Common.FileGeneration
 {
+  [Serializable]
   public class FileGeneratingResult: FileResult
   {
     /// <summary>
     /// The delegate that will generate the file content.
     /// </summary>
     private readonly Action<Stream> content;
+    public Action<Stream> Content { get; set; }
 
     private readonly bool bufferOutput;
 

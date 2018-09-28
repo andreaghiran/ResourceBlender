@@ -16,7 +16,6 @@ namespace ResourceBlender.WindowsForms
 
     private void addButton_Click(object sender, EventArgs e)
     {
-      
       this.Close();
     }
   }

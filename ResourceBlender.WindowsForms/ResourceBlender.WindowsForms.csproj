@@ -87,10 +87,6 @@
     <Compile Include="AddForm.Designer.cs">
       <DependentUpon>AddForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormFactory\Contracts\IAddFormFactory.cs" />
-    <Compile Include="FormFactory\Implementation\AddFormFactory.cs" />
-    <Compile Include="FormFactory\Contracts\IMainFormFactory.cs" />
-    <Compile Include="FormFactory\Implementation\MainFormFactory.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

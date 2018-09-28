@@ -2,8 +2,6 @@
 using ResourceBlender.Repository.Implementations;
 using ResourceBlender.Services.Contracts;
 using ResourceBlender.Services.Implementations;
-using ResourceBlender.WindowsForms.FormFactory.Contracts;
-using ResourceBlender.WindowsForms.FormFactory.Implementation;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
