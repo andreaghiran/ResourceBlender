@@ -2,6 +2,7 @@
 using ResourceBlender.Repository.Contracts;
 using ResourceBlender.Services.Contracts;
 using System.IO;
+using System.IO.Compression;
 using System.Resources;
 
 namespace ResourceBlender.Services.Implementations
@@ -15,7 +16,36 @@ namespace ResourceBlender.Services.Implementations
       _resourceRepository = resourceRepository;
     }
 
-    public void GenerateExportFile(Stream stream, LanguageEnumeration language)
+    public MemoryStream GetArchive()
+    {
+      var memoryStream = new MemoryStream();
+      using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+      {
+        var zipArchiveEntry = archive.CreateEntry("Resources.ro.resx");
+        using (var entryStream = zipArchiveEntry.Open())
+        {
+          GenerateResourceFile(entryStream, LanguageEnumeration.Romanian);
+        }
+
+        zipArchiveEntry = archive.CreateEntry("Resources.resx");
+        using (var entryStream = zipArchiveEntry.Open())
+        {
+          GenerateResourceFile(entryStream, LanguageEnumeration.English);
+        }
+      }
+      return memoryStream;
+    }
+
+    public MemoryStream GetResourceFile(LanguageEnumeration language)
+    {
+      var stream = new MemoryStream();
+      ResXResourceWriter resourceFileWriter = new ResXResourceWriter(stream);
+      resourceFileWriter = AddResourcesInChosenLanguage(resourceFileWriter, language);
+      resourceFileWriter.Close();
+      return stream;
+    }
+
+    void GenerateResourceFile(Stream stream, LanguageEnumeration language)
     {
       ResXResourceWriter resourceFileWriter = new ResXResourceWriter(stream);
       resourceFileWriter = AddResourcesInChosenLanguage(resourceFileWriter, language);

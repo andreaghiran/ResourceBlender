@@ -136,6 +136,10 @@ namespace ResourceBlender.Services.Implementations
       }
     }
 
+    public List<Resource> GetAllResources()
+    {
+      return _resourceRepository.GetAllResources().ToList();
+    }
     ResourceBlenderEntities AddToContext(ResourceBlenderEntities context, Resource entityToInsert, int count, int commitCount, bool recreateContext)
     {
       context.Set<Resource>().Add(entityToInsert);

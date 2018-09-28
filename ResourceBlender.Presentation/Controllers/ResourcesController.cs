@@ -1,16 +1,21 @@
-﻿using PagedList;
+﻿using Ionic.Zip;
+using PagedList;
 using ResourceBlender.Common.Enums;
 using ResourceBlender.Common.FileGeneration;
 using ResourceBlender.Common.ViewModels;
 using ResourceBlender.Domain;
 using ResourceBlender.Repository.Contracts;
 using ResourceBlender.Services.Contracts;
+using System;
 using System.Activities.Statements;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Resources;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Web;
 using System.Web.Mvc;
 
@@ -29,7 +34,7 @@ namespace ResourceBlender.Presentation.Controllers
       _fileService = fileService;
     }
 
-    public ActionResult Index(int? page, string searchTerm="")
+    public ActionResult Index(int? page, string searchTerm = "")
     {
       var viewModel = _resourcesService.GetResourceViewModelList();
 
@@ -48,10 +53,7 @@ namespace ResourceBlender.Presentation.Controllers
     }
 
     [HttpGet]
-    public ActionResult ImportResources()
-    {
-      return View();
-    }
+    public ActionResult ImportResources() => View();
 
 
     [HttpPost]
@@ -71,26 +73,23 @@ namespace ResourceBlender.Presentation.Controllers
       }
       else
       {
-       
+
         return View(model);
       }
     }
 
-    public ActionResult ExportRomanianResources()
+    public ActionResult ExportResources()
     {
-      return new FileGeneratingResult("Resources.ro.resx","application/xml", stream => _fileService.GenerateExportFile(stream, LanguageEnumeration.Romanian));
+      var archive = _fileService.GetArchive();
+      return File(archive.ToArray(), "application/zip", "res.zip");
     }
 
-    public ActionResult ExportEnglishResources()
-    {
-      return new FileGeneratingResult("Resources.resx", "application/xml", stream => _fileService.GenerateExportFile(stream, LanguageEnumeration.English));
-    }
+    //public ActionResult ExportEnglishResources()
+    //{
+    //  return new FileGeneratingResult("Resources.resx", "application/xml", stream => _fileService.GenerateExportFile(stream, LanguageEnumeration.English));
+    //}
 
-
-    public ActionResult AddResource()
-    {
-      return View();
-    }
+    public ActionResult AddResource() => View();
 
     [HttpPost]
     public ActionResult AddResource(ResourceViewModel model)
@@ -133,9 +132,6 @@ namespace ResourceBlender.Presentation.Controllers
       return RedirectToAction("Index");
     }
 
-    public ActionResult GenerateResources()
-    {
-      return View();
-    }
+    public ActionResult GenerateResources() => View();
   }
 }

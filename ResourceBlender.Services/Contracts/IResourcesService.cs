@@ -1,4 +1,5 @@
 ﻿using ResourceBlender.Common.ViewModels;
+using ResourceBlender.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,5 +17,6 @@ namespace ResourceBlender.Services.Contracts
     void EditResource(ResourceViewModel resourceViewModel);
     void AddOrUpdateRomanianResourcesOnImport(HttpPostedFileBase resourceFile);
     void AddOrUpdateEnglishResourcesOnImport(HttpPostedFileBase resourceFile);
+    List<Resource> GetAllResources();
   }
 }

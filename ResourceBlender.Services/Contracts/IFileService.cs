@@ -10,6 +10,7 @@ namespace ResourceBlender.Services.Contracts
 {
   public interface IFileService
   {
-    void GenerateExportFile(Stream stream, LanguageEnumeration language);
+    MemoryStream GetArchive();
+    MemoryStream GetResourceFile(LanguageEnumeration language);
   }
 }
