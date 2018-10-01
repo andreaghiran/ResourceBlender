@@ -7,16 +7,19 @@ namespace ResourceBlender.WindowsForms
   public partial class MainForm : Form
   {
     private readonly IResourcesService resourcesService;
+    private readonly AddForm addForm;
 
-    public MainForm(IResourcesService _resourcesService)
+    public MainForm(IResourcesService _resourcesService, AddForm _addForm)
     {
       InitializeComponent();
       resourcesService = _resourcesService;
+      addForm = _addForm;
     }
 
     private void addButton_Click(object sender, EventArgs e)
     {
-      this.Close();
+      addForm.Show();
+      //this.Close();
     }
   }
 }

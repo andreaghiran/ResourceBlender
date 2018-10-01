@@ -1,4 +1,5 @@
-﻿using ResourceBlender.Repository.Contracts;
+﻿using ResourceBlender.Domain;
+using ResourceBlender.Repository.Contracts;
 using ResourceBlender.Repository.Implementations;
 using ResourceBlender.Services.Contracts;
 using ResourceBlender.Services.Implementations;
@@ -9,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Unity;
+using Unity.Injection;
 
 namespace ResourceBlender.WindowsForms
 {
@@ -25,8 +27,7 @@ namespace ResourceBlender.WindowsForms
       var container = BuildUnityContainer();
       Application.EnableVisualStyles();
       Application.SetCompatibleTextRenderingDefault(false);
-      AddForm addForm = container.Resolve<AddForm>();
-
+      container.Resolve<AddForm>();
       Application.Run(container.Resolve<MainForm>());
     }
 
@@ -37,6 +38,7 @@ namespace ResourceBlender.WindowsForms
       container.RegisterType<IResourcesService, ResourcesService>();
       container.RegisterType<IFileService, FileService>();
       container.RegisterType<IFileResourceRepository, FileResourceRepository>();
+      container.RegisterType<ResourceBlenderEntities, ResourceBlenderEntities>();
 
       return container;
     }
