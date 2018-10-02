@@ -51,5 +51,25 @@ namespace ResourceBlender.Presentation.ApiControllers
 
       return result;
     }
+
+    [HttpGet]
+    public HttpResponseMessage GetZip()
+    {
+      var archive = fileService.GetArchive();
+
+      var result = new HttpResponseMessage(HttpStatusCode.OK)
+      {
+        Content = new ByteArrayContent(archive.ToArray())
+      };
+      result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+      {
+        FileName = "res.zip"
+      };
+
+      result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/zip");
+
+      return result;
+
+    }
   }
 }

@@ -3,6 +3,8 @@ using ResourceBlender.Repository.Contracts;
 using ResourceBlender.Repository.Implementations;
 using ResourceBlender.Services.Contracts;
 using ResourceBlender.Services.Implementations;
+using ResourceBlender.WindowsForms.Services.Implementation;
+using ResourceBlender.WindowsForms.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -39,6 +41,7 @@ namespace ResourceBlender.WindowsForms
       container.RegisterType<IFileService, FileService>();
       container.RegisterType<IFileResourceRepository, FileResourceRepository>();
       container.RegisterType<ResourceBlenderEntities, ResourceBlenderEntities>();
+      container.RegisterType<ITextBoxOperation, TextBoxOperation>();
 
       return container;
     }

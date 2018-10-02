@@ -42,6 +42,9 @@
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
@@ -95,6 +98,8 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\Implementation\TextBoxOperation.cs" />
+    <Compile Include="Services\Interfaces\ITextBoxOperation.cs" />
     <EmbeddedResource Include="AddForm.resx">
       <DependentUpon>AddForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -125,6 +130,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ResourceBlender.Common\ResourceBlender.Common.csproj">
+      <Project>{8169575C-0263-4256-B0C3-653084B6E515}</Project>
+      <Name>ResourceBlender.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ResourceBlender.Domain\ResourceBlender.Domain.csproj">
       <Project>{DBDA5EB1-1AF6-4A31-978D-FC0CBB48D7A7}</Project>
       <Name>ResourceBlender.Domain</Name>

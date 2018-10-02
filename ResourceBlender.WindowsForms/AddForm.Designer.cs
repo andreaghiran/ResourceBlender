@@ -36,6 +36,8 @@
       this.englishTranslationTextBox = new System.Windows.Forms.TextBox();
       this.addFormSubmitButton = new System.Windows.Forms.Button();
       this.cancelButton = new System.Windows.Forms.Button();
+      this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+      this.chooseResourceFolderButton = new System.Windows.Forms.Button();
       this.SuspendLayout();
       // 
       // resourceStringLabel
@@ -88,27 +90,40 @@
       // 
       // addFormSubmitButton
       // 
-      this.addFormSubmitButton.Location = new System.Drawing.Point(191, 202);
+      this.addFormSubmitButton.Location = new System.Drawing.Point(191, 235);
       this.addFormSubmitButton.Name = "addFormSubmitButton";
-      this.addFormSubmitButton.Size = new System.Drawing.Size(135, 23);
+      this.addFormSubmitButton.Size = new System.Drawing.Size(196, 23);
       this.addFormSubmitButton.TabIndex = 6;
       this.addFormSubmitButton.Text = "Submit and Generate";
       this.addFormSubmitButton.UseVisualStyleBackColor = true;
+      this.addFormSubmitButton.Click += new System.EventHandler(this.addFormSubmitButton_Click);
       // 
       // cancelButton
       // 
-      this.cancelButton.Location = new System.Drawing.Point(358, 202);
+      this.cancelButton.Location = new System.Drawing.Point(436, 235);
       this.cancelButton.Name = "cancelButton";
       this.cancelButton.Size = new System.Drawing.Size(75, 23);
       this.cancelButton.TabIndex = 7;
       this.cancelButton.Text = "Cancel";
       this.cancelButton.UseVisualStyleBackColor = true;
+      this.cancelButton.Click += new System.EventHandler(this.cancelButton_Click);
+      // 
+      // chooseResourceFolderButton
+      // 
+      this.chooseResourceFolderButton.Location = new System.Drawing.Point(309, 172);
+      this.chooseResourceFolderButton.Name = "chooseResourceFolderButton";
+      this.chooseResourceFolderButton.Size = new System.Drawing.Size(202, 23);
+      this.chooseResourceFolderButton.TabIndex = 8;
+      this.chooseResourceFolderButton.Text = "Choose your resource folder";
+      this.chooseResourceFolderButton.UseVisualStyleBackColor = true;
+      this.chooseResourceFolderButton.Click += new System.EventHandler(this.chooseResourceFolderButton_Click);
       // 
       // AddForm
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(800, 450);
+      this.Controls.Add(this.chooseResourceFolderButton);
       this.Controls.Add(this.cancelButton);
       this.Controls.Add(this.addFormSubmitButton);
       this.Controls.Add(this.englishTranslationTextBox);
@@ -134,5 +149,7 @@
     private System.Windows.Forms.TextBox englishTranslationTextBox;
     private System.Windows.Forms.Button addFormSubmitButton;
     private System.Windows.Forms.Button cancelButton;
+    private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
+    private System.Windows.Forms.Button chooseResourceFolderButton;
   }
 }

@@ -7,9 +7,14 @@ using ResourceBlender.Services.Contracts;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Net.Http;
 using System.Resources;
+using System.Threading.Tasks;
 using System.Web;
+using System.Windows.Forms;
 
 namespace ResourceBlender.Services.Implementations
 {
@@ -140,57 +145,76 @@ namespace ResourceBlender.Services.Implementations
     {
       return _resourceRepository.GetAllResources().ToList();
     }
-    ResourceBlenderEntities AddToContext(ResourceBlenderEntities context, Resource entityToInsert, int count, int commitCount, bool recreateContext)
+
+    public async Task ZipResources(string localResourcesPath)
     {
-      context.Set<Resource>().Add(entityToInsert);
+      var path = "http://localhost:53345/api/Resources/GetZip";
+      HttpClient client = new HttpClient();
+      HttpResponseMessage response = await client.GetAsync(path);
 
-      if (count % commitCount == 0)
-      {
-        context.SaveChanges();
-        if (recreateContext)
-        {
-          context.Dispose();
-          context = new ResourceBlenderEntities();
-          context.Configuration.AutoDetectChangesEnabled = false;
-        }
-      }
+      var jsonMessage = await response.Content.ReadAsByteArrayAsync();
+      //File.WriteAllBytes(Path.Combine(@localResourcesPath, "ress.zip"), jsonMessage);
 
-      return context;
+
+      MemoryStream memoryStream = new MemoryStream(jsonMessage);
+
+      ZipArchive zipArchive = new ZipArchive(memoryStream);
+      zipArchive.ExtractToDirectory(localResourcesPath);
+     
     }
 
-    List<Resource> GetResourcesFromFile(HttpPostedFileBase resourceFile, LanguageEnumeration language)
-    {
-      List<Resource> resources = new List<Resource>();
-
-      using (ResXResourceReader resxReader = new ResXResourceReader(resourceFile.InputStream))
+      ResourceBlenderEntities AddToContext(ResourceBlenderEntities context, Resource entityToInsert, int count, int commitCount, bool recreateContext)
       {
-        if (language == LanguageEnumeration.English)
+        context.Set<Resource>().Add(entityToInsert);
+
+        if (count % commitCount == 0)
         {
-          foreach (DictionaryEntry entry in resxReader)
+          context.SaveChanges();
+          if (recreateContext)
           {
-            Resource resource = new Resource
-            {
-              ResourceString = (string)entry.Key,
-              EnglishTranslation = (string)entry.Value
-            };
-            resources.Add(resource);
+            context.Dispose();
+            context = new ResourceBlenderEntities();
+            context.Configuration.AutoDetectChangesEnabled = false;
           }
         }
 
-        if (language == LanguageEnumeration.Romanian)
+        return context;
+      }
+
+      List<Resource> GetResourcesFromFile(HttpPostedFileBase resourceFile, LanguageEnumeration language)
+      {
+        List<Resource> resources = new List<Resource>();
+
+        using (ResXResourceReader resxReader = new ResXResourceReader(resourceFile.InputStream))
         {
-          foreach (DictionaryEntry entry in resxReader)
+          if (language == LanguageEnumeration.English)
           {
-            Resource resource = new Resource
+            foreach (DictionaryEntry entry in resxReader)
             {
-              ResourceString = (string)entry.Key,
-              RomanianTranslation = (string)entry.Value
-            };
-            resources.Add(resource);
+              Resource resource = new Resource
+              {
+                ResourceString = (string)entry.Key,
+                EnglishTranslation = (string)entry.Value
+              };
+              resources.Add(resource);
+            }
+          }
+
+          if (language == LanguageEnumeration.Romanian)
+          {
+            foreach (DictionaryEntry entry in resxReader)
+            {
+              Resource resource = new Resource
+              {
+                ResourceString = (string)entry.Key,
+                RomanianTranslation = (string)entry.Value
+              };
+              resources.Add(resource);
+            }
           }
         }
+        return resources;
       }
-      return resources;
     }
   }
-}
+

@@ -1,4 +1,5 @@
 ﻿using ResourceBlender.Services.Contracts;
+using ResourceBlender.WindowsForms.Services.Interfaces;
 using System;
 using System.Windows.Forms;
 
