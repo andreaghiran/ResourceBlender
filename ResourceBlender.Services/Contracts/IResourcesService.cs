@@ -19,6 +19,9 @@ namespace ResourceBlender.Services.Contracts
     void AddOrUpdateRomanianResourcesOnImport(HttpPostedFileBase resourceFile);
     void AddOrUpdateEnglishResourcesOnImport(HttpPostedFileBase resourceFile);
     List<Resource> GetAllResources();
-    Task ZipResources(string path);
+    Task ExtractResourcesToLocalFolder(string path);
+    Task SendAndAddResource(ResourceViewModel resource);
+    Task SendAndUpdateResource(ResourceViewModel resource);
+    Task SendAndDeleteResource(ResourceViewModel resource);
   }
 }

@@ -51,6 +51,7 @@
       this.editButton.TabIndex = 1;
       this.editButton.Text = "Edit a resource";
       this.editButton.UseVisualStyleBackColor = true;
+      this.editButton.Click += new System.EventHandler(this.editButton_Click);
       // 
       // deleteButton
       // 
@@ -60,8 +61,9 @@
       this.deleteButton.TabIndex = 2;
       this.deleteButton.Text = "Delete a resource";
       this.deleteButton.UseVisualStyleBackColor = true;
+      this.deleteButton.Click += new System.EventHandler(this.deleteButton_Click);
       // 
-      // Form1
+      // MainForm
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -69,7 +71,7 @@
       this.Controls.Add(this.deleteButton);
       this.Controls.Add(this.editButton);
       this.Controls.Add(this.addButton);
-      this.Name = "Form1";
+      this.Name = "MainForm";
       this.Text = "Form1";
       this.ResumeLayout(false);
 

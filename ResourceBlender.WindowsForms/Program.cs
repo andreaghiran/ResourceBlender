@@ -30,6 +30,8 @@ namespace ResourceBlender.WindowsForms
       Application.EnableVisualStyles();
       Application.SetCompatibleTextRenderingDefault(false);
       container.Resolve<AddForm>();
+      container.Resolve<EditForm>();
+      container.Resolve<DeleteForm>();
       Application.Run(container.Resolve<MainForm>());
     }
 
@@ -41,7 +43,7 @@ namespace ResourceBlender.WindowsForms
       container.RegisterType<IFileService, FileService>();
       container.RegisterType<IFileResourceRepository, FileResourceRepository>();
       container.RegisterType<ResourceBlenderEntities, ResourceBlenderEntities>();
-      container.RegisterType<ITextBoxOperation, TextBoxOperation>();
+      container.RegisterType<IComponentOperation, ComponentOperation>();
 
       return container;
     }

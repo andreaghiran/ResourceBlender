@@ -100,6 +100,7 @@
       // 
       // cancelButton
       // 
+      this.cancelButton.CausesValidation = false;
       this.cancelButton.Location = new System.Drawing.Point(436, 235);
       this.cancelButton.Name = "cancelButton";
       this.cancelButton.Size = new System.Drawing.Size(75, 23);
@@ -110,6 +111,7 @@
       // 
       // chooseResourceFolderButton
       // 
+      this.chooseResourceFolderButton.CausesValidation = false;
       this.chooseResourceFolderButton.Location = new System.Drawing.Point(309, 172);
       this.chooseResourceFolderButton.Name = "chooseResourceFolderButton";
       this.chooseResourceFolderButton.Size = new System.Drawing.Size(202, 23);

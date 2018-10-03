@@ -7,8 +7,10 @@ using System.Windows.Forms;
 
 namespace ResourceBlender.WindowsForms.Services.Interfaces
 {
-  public interface ITextBoxOperation
+  public interface IComponentOperation
   {
     void ClearTextBoxes(Control control);
+    string SetResourceFolderPath();
+    bool ValidateTextBoxes(Control control);
   }
 }

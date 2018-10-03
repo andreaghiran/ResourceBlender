@@ -40,9 +40,9 @@ namespace ResourceBlender.Repository.Implementations
 
       if (updatedResource != null)
       {
-        updatedResource.ResourceString = resource.ResourceString;
-        updatedResource.RomanianTranslation = resource.RomanianTranslation;
-        updatedResource.EnglishTranslation = resource.EnglishTranslation;
+        updatedResource.ResourceString = resource.ResourceString != string.Empty ? resource.ResourceString : updatedResource.ResourceString;
+        updatedResource.RomanianTranslation = resource.RomanianTranslation != string.Empty ? resource.RomanianTranslation : updatedResource.RomanianTranslation;
+        updatedResource.EnglishTranslation = resource.EnglishTranslation != string.Empty ? resource.EnglishTranslation : updatedResource.EnglishTranslation;
         _dbContext.SaveChanges();
       }
     }
