@@ -73,6 +73,7 @@
       this.resourceStringTextBox.Name = "resourceStringTextBox";
       this.resourceStringTextBox.Size = new System.Drawing.Size(202, 20);
       this.resourceStringTextBox.TabIndex = 3;
+      this.resourceStringTextBox.Validating += new System.ComponentModel.CancelEventHandler(this.textBox_Validating);
       // 
       // romanianTranslationTextBox
       // 
@@ -80,6 +81,7 @@
       this.romanianTranslationTextBox.Name = "romanianTranslationTextBox";
       this.romanianTranslationTextBox.Size = new System.Drawing.Size(202, 20);
       this.romanianTranslationTextBox.TabIndex = 4;
+      this.romanianTranslationTextBox.Validating += new System.ComponentModel.CancelEventHandler(this.textBox_Validating);
       // 
       // englishTranslationTextBox
       // 
@@ -87,6 +89,7 @@
       this.englishTranslationTextBox.Name = "englishTranslationTextBox";
       this.englishTranslationTextBox.Size = new System.Drawing.Size(202, 20);
       this.englishTranslationTextBox.TabIndex = 5;
+      this.englishTranslationTextBox.Validating += new System.ComponentModel.CancelEventHandler(this.textBox_Validating);
       // 
       // addFormSubmitButton
       // 
@@ -101,6 +104,7 @@
       // cancelButton
       // 
       this.cancelButton.CausesValidation = false;
+      this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
       this.cancelButton.Location = new System.Drawing.Point(436, 235);
       this.cancelButton.Name = "cancelButton";
       this.cancelButton.Size = new System.Drawing.Size(75, 23);
@@ -124,6 +128,8 @@
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+      this.CancelButton = this.cancelButton;
+      this.CausesValidation = false;
       this.ClientSize = new System.Drawing.Size(800, 450);
       this.Controls.Add(this.chooseResourceFolderButton);
       this.Controls.Add(this.cancelButton);
@@ -136,6 +142,7 @@
       this.Controls.Add(this.resourceStringLabel);
       this.Name = "AddForm";
       this.Text = "Add a resource";
+      this.Load += new System.EventHandler(this.AddForm_Load);
       this.ResumeLayout(false);
       this.PerformLayout();
 

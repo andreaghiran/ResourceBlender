@@ -83,11 +83,13 @@
       this.resourceTextBox.Name = "resourceTextBox";
       this.resourceTextBox.Size = new System.Drawing.Size(214, 20);
       this.resourceTextBox.TabIndex = 4;
+      this.resourceTextBox.Validating += new System.ComponentModel.CancelEventHandler(this.textBox_Validating);
       // 
       // DeleteForm
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+      this.CausesValidation = false;
       this.ClientSize = new System.Drawing.Size(800, 450);
       this.Controls.Add(this.resourceTextBox);
       this.Controls.Add(this.resourceLabel);
@@ -96,6 +98,7 @@
       this.Controls.Add(this.deleteAndGenerateButton);
       this.Name = "DeleteForm";
       this.Text = "DeleteForm";
+      this.Load += new System.EventHandler(this.DeleteForm_Load);
       this.ResumeLayout(false);
       this.PerformLayout();
 

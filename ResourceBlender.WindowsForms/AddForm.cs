@@ -6,6 +6,7 @@ using ResourceBlender.WindowsForms.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -34,27 +35,43 @@ namespace ResourceBlender.WindowsForms
 
     private async void addFormSubmitButton_Click(object sender, EventArgs e)
     {
-      var isFormValid = componentOperation.ValidateTextBoxes(this);
-      isFormValid = !resourceFolderPath.Equals(string.Empty);
+      var isFormValid = ValidateChildren();
 
-      if (isFormValid)
+      if (!isFormValid)
       {
-        ResourceViewModel resource = new ResourceViewModel();
-
-        resource.ResourceString = resourceStringTextBox.Text;
-        resource.EnglishTranslation = englishTranslationTextBox.Text;
-        resource.RomanianTranslation = romanianTranslationTextBox.Text;
-
-        await resourceService.SendAndAddResource(resource);
-        await resourceService.ExtractResourcesToLocalFolder(resourceFolderPath);
-        componentOperation.ClearTextBoxes(this);
-        this.Hide();
+        MessageBox.Show("All fields are required.");
+        return;
       }
 
-      else
+      isFormValid = !(resourceFolderPath == null);
+      if (!isFormValid)
       {
-
+        MessageBox.Show("You must choose a folder.");
+        return;
       }
+      else if (resourceFolderPath.Equals(String.Empty))
+      {
+        MessageBox.Show("Not a valid folder.");
+        return;
+      }
+
+      isFormValid =!(await resourceService.CheckIfResourceWithNameExists(resourceStringTextBox.Text));
+      if (!isFormValid)
+      {
+        MessageBox.Show("A resource with the same name already exists.");
+        return;
+      }
+
+      ResourceViewModel resource = new ResourceViewModel();
+
+      resource.ResourceString = resourceStringTextBox.Text;
+      resource.EnglishTranslation = englishTranslationTextBox.Text;
+      resource.RomanianTranslation = romanianTranslationTextBox.Text;
+
+      await resourceService.SendAndAddResource(resource);
+      await resourceService.ExtractResourcesToLocalFolder(resourceFolderPath);
+      componentOperation.ClearTextBoxes(this);
+      this.Hide();
     }
 
     private void chooseResourceFolderButton_Click(object sender, EventArgs e)
@@ -62,18 +79,26 @@ namespace ResourceBlender.WindowsForms
       resourceFolderPath = componentOperation.SetResourceFolderPath();
     }
 
-    //private void textBox_Validating(object sender, CancelEventArgs e)
-    //{
-    //  TextBox tb = (TextBox)sender;
-    //  errorProvider = new ErrorProvider();
-    //  if (String.IsNullOrEmpty(tb.Text))
-    //  {
-    //    errorProvider.SetError(tb, "This field is required.");
-    //    e.Cancel = true;
-    //    return;
-    //  }
+    private void textBox_Validating(object sender, CancelEventArgs e)
+    {
+      TextBox tb = (TextBox)sender;
+      errorProvider = new ErrorProvider();
+      if (String.IsNullOrEmpty(tb.Text))
+      {
+        errorProvider.SetError(tb, "This field is required.");
+        e.Cancel = true;
+      }
+      else
+      {
+        e.Cancel = false;
+      }
 
-    //  errorProvider.SetError(tb, String.Empty);
-    //}
+      errorProvider.SetError(tb, String.Empty);
+    }
+
+    private void AddForm_Load(object sender, EventArgs e)
+    {
+      this.AutoValidate = AutoValidate.Disable;
+    }
   }
 }

@@ -23,5 +23,6 @@ namespace ResourceBlender.Services.Contracts
     Task SendAndAddResource(ResourceViewModel resource);
     Task SendAndUpdateResource(ResourceViewModel resource);
     Task SendAndDeleteResource(ResourceViewModel resource);
+    Task<bool> CheckIfResourceWithNameExists(string resourceName);
   }
 }

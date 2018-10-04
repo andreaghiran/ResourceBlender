@@ -105,9 +105,11 @@
       this.resourceTextBox.Name = "resourceTextBox";
       this.resourceTextBox.Size = new System.Drawing.Size(174, 20);
       this.resourceTextBox.TabIndex = 6;
+      this.resourceTextBox.Validating += new System.ComponentModel.CancelEventHandler(this.textBox_Validating);
       // 
       // romanianTranslationTextBox
       // 
+      this.romanianTranslationTextBox.CausesValidation = false;
       this.romanianTranslationTextBox.Location = new System.Drawing.Point(336, 115);
       this.romanianTranslationTextBox.Name = "romanianTranslationTextBox";
       this.romanianTranslationTextBox.Size = new System.Drawing.Size(175, 20);
@@ -115,6 +117,7 @@
       // 
       // englishTranslationTextBox
       // 
+      this.englishTranslationTextBox.CausesValidation = false;
       this.englishTranslationTextBox.Location = new System.Drawing.Point(337, 148);
       this.englishTranslationTextBox.Name = "englishTranslationTextBox";
       this.englishTranslationTextBox.Size = new System.Drawing.Size(174, 20);
@@ -124,6 +127,7 @@
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+      this.CausesValidation = false;
       this.ClientSize = new System.Drawing.Size(800, 450);
       this.Controls.Add(this.englishTranslationTextBox);
       this.Controls.Add(this.romanianTranslationTextBox);
@@ -136,6 +140,7 @@
       this.Controls.Add(this.updateAndGenerateButton);
       this.Name = "EditForm";
       this.Text = "EditForm";
+      this.Load += new System.EventHandler(this.EditForm_Load);
       this.ResumeLayout(false);
       this.PerformLayout();
 

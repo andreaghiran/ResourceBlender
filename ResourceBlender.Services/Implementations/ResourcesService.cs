@@ -196,9 +196,24 @@ namespace ResourceBlender.Services.Implementations
 
     }
 
-    private Resource FindResourceByName(string resourceName)
+    public async Task<bool> CheckIfResourceWithNameExists(string resourceName)
     {
-      var resource = GetAllResources().Where(x => x.ResourceString.ToLower().Equals(resourceName.ToLower())).FirstOrDefault();
+      //Resoult will wait until Task completes and returns a result
+      var resource = await FindResourceByName(resourceName);
+      bool exists = resource != null ? true : false;
+      return exists;
+    }
+
+    private async Task<Resource> FindResourceByName(string resourceName)
+    {
+      var queryString = resourceName;
+      var path = "http://localhost:53345/api/Resources/FindResourceByName?resourceName=" + resourceName;
+
+      HttpResponseMessage result = await _httpClient.GetAsync(path);
+
+      var jsonResource= await result.Content.ReadAsStringAsync();
+
+      var resource = JsonConvert.DeserializeObject<Resource>(jsonResource);
 
       return resource != null ? resource : null; 
     }

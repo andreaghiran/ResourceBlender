@@ -19,17 +19,11 @@ namespace ResourceBlender.WindowsForms.Services.Implementation
       FolderBrowserDialog resourcesFolderDialog = new FolderBrowserDialog();
       resourcesFolderDialog.ShowNewFolderButton = true;
       DialogResult result = resourcesFolderDialog.ShowDialog();
-      if (result == DialogResult.OK)
-      {
-        return resourcesFolderDialog.SelectedPath;
-      }
-      else
-      {
-        return string.Empty;
-      }
+      
+      return result == DialogResult.OK ? resourcesFolderDialog.SelectedPath : string.Empty;
     }
 
-    public bool ValidateTextBoxes(Control control)
+    public bool AreAllTextBoxesValid(Control control)
     {
       foreach (var c in control.Controls)
       {
@@ -39,6 +33,11 @@ namespace ResourceBlender.WindowsForms.Services.Implementation
         }
       }
       return true;
+    }
+
+    public bool IsTextBoxValid(TextBox textBoxToValidate)
+    {
+      return !textBoxToValidate.Text.Equals(string.Empty);
     }
   }
 }

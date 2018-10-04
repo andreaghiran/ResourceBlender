@@ -8,6 +8,7 @@ using ResourceBlender.Services.Contracts;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace ResourceBlender.Presentation.ApiControllers
@@ -64,6 +65,14 @@ namespace ResourceBlender.Presentation.ApiControllers
       resourceRepository.DeleteResource(resourceId);
 
       return Ok();
+    }
+
+    [HttpGet]
+    public async Task<IHttpActionResult> FindResourceByName(string resourceName)
+    {
+      var resource = await resourceRepository.GetResourceByName(resourceName);
+
+      return Ok(resource);
     }
   }
 }

@@ -11,6 +11,6 @@ namespace ResourceBlender.WindowsForms.Services.Interfaces
   {
     void ClearTextBoxes(Control control);
     string SetResourceFolderPath();
-    bool ValidateTextBoxes(Control control);
+    string GetValidationMessage(Form form, )
   }
 }

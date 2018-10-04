@@ -2,6 +2,7 @@
 using ResourceBlender.Repository.Contracts;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Data.Entity.Migrations;
 using System.Linq;
 using System.Text;
@@ -55,6 +56,11 @@ namespace ResourceBlender.Repository.Implementations
         _dbContext.Resources.Remove(resource);
         _dbContext.SaveChanges();
       }
+    }
+
+    public async Task<Resource> GetResourceByName(string name)
+    {
+      return await _dbContext.Resources.Where(x => x.ResourceString.Trim().ToLower().Equals(name.Trim().ToLower())).FirstOrDefaultAsync();
     }
   }
 }
