@@ -72,7 +72,7 @@
       this.Controls.Add(this.editButton);
       this.Controls.Add(this.addButton);
       this.Name = "MainForm";
-      this.Text = "Form1";
+      this.Text = "Resource Editor";
       this.ResumeLayout(false);
 
     }

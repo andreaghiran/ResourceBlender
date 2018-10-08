@@ -1,14 +1,8 @@
-﻿using Newtonsoft.Json;
-using ResourceBlender.Common.ViewModels;
-using ResourceBlender.Domain;
+﻿using ResourceBlender.Common.ViewModels;
 using ResourceBlender.Services.Contracts;
 using ResourceBlender.WindowsForms.Services.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ResourceBlender.WindowsForms
@@ -70,6 +64,8 @@ namespace ResourceBlender.WindowsForms
 
       await resourceService.SendAndAddResource(resource);
       await resourceService.ExtractResourcesToLocalFolder(resourceFolderPath);
+      await resourceService.GenerateJavascriptResources(resourceFolderPath);
+
       componentOperation.ClearTextBoxes(this);
       this.Hide();
     }

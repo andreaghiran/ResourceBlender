@@ -25,6 +25,13 @@ namespace ResourceBlender.Presentation.ApiControllers
     }
 
     [HttpGet]
+    public IHttpActionResult GetAllResources()
+    {
+      var resources = resourceRepository.GetAllResources();
+      return Ok(resources);
+    }
+
+    [HttpGet]
     public HttpResponseMessage GetZip()
     {
       var archive = fileService.GetArchive();
@@ -42,7 +49,7 @@ namespace ResourceBlender.Presentation.ApiControllers
 
       return result;
     }
-
+    
     [HttpPost]
     public IHttpActionResult AddResource(ResourceViewModel resource)
     {

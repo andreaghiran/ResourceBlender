@@ -1,9 +1,12 @@
 ﻿using ResourceBlender.Common.Enums;
 using ResourceBlender.Repository.Contracts;
 using ResourceBlender.Services.Contracts;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Resources;
+using System.Threading.Tasks;
+using System.Web.Script.Serialization;
 
 namespace ResourceBlender.Services.Implementations
 {
@@ -43,6 +46,19 @@ namespace ResourceBlender.Services.Implementations
       resourceFileWriter = AddResourcesInChosenLanguage(resourceFileWriter, language);
       resourceFileWriter.Close();
       return stream;
+    }
+
+    public string GetJavascriptFile(Dictionary<string, string> resourceDictionary)
+    {
+      JavaScriptSerializer serializer = new JavaScriptSerializer();
+      var json =  serializer.Serialize(resourceDictionary);
+      var javaScript = "$.blogic.resources = " + json.Replace("\",\"", "\",\n\"") + ";";
+      return (javaScript);
+    }
+
+    public string GetJavaScriptFilePath(string resourcesPath)
+    {
+      return Directory.GetParent(resourcesPath).ToString() + "\\BLogic.Web.Mvc\\Scripts\\blogic.resources.ro.js";
     }
 
     void GenerateResourceFile(Stream stream, LanguageEnumeration language)

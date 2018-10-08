@@ -12,5 +12,7 @@ namespace ResourceBlender.Services.Contracts
   {
     MemoryStream GetArchive();
     MemoryStream GetResourceFile(LanguageEnumeration language);
+    string GetJavascriptFile(Dictionary<string, string> resourceDictionary);
+    string GetJavaScriptFilePath(string resourcesPath);
   }
 }

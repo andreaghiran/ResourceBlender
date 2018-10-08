@@ -9,6 +9,8 @@
   <div>Are you sure you want to delete the current resource?</div>
   @using (Html.BeginForm("DeleteResource", "Resources",new { id = Model.Id}, FormMethod.Post))
   {
+    @Html.HiddenFor(model => model.Id)
+    @Html.HiddenFor(model => model.ResourceString)
     <input type="submit" value="Yes" class="btn btn-danger" />
   }
   @Html.ActionLink("Go back to homepage", "Index", "Resources", new { @class = "btn btn-info" })

@@ -2,8 +2,13 @@
 @{
   ViewBag.Title = "Add a resource";
 }
-
 <h2>Add a new resource</h2>
+
+@if (TempData["ErrorMessage"] != null)
+{
+  Html.RenderPartial("_Error", TempData["ErrorMessage"]);
+}
+
 @using (Html.BeginForm("AddResource", "Resources", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
   <div class="container">
@@ -23,6 +28,6 @@
       @Html.ValidationMessageFor(model => model.EnglishTranslation, "", new { @class = "text-danger" })
     </div>
     <input type="submit" value="Add" class="btn btn-success" />
-    @Html.ActionLink("Back to homepage", "Index", "Resources", new { @class = "btn btn-info"})
+    @Html.ActionLink("Back to homepage", "Index", "Resources", new { @class = "btn btn-info" })
   </div>
 }

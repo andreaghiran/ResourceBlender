@@ -1,10 +1,12 @@
 ﻿using Nelibur.ObjectMapper;
 using Newtonsoft.Json;
 using ResourceBlender.Common.Enums;
+using ResourceBlender.Common.Exceptions;
 using ResourceBlender.Common.ViewModels;
 using ResourceBlender.Domain;
 using ResourceBlender.Repository.Contracts;
 using ResourceBlender.Services.Contracts;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -16,6 +18,7 @@ using System.Resources;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.Script.Serialization;
 using System.Windows.Forms;
 
 namespace ResourceBlender.Services.Implementations
@@ -26,13 +29,15 @@ namespace ResourceBlender.Services.Implementations
     private ResourceBlenderEntities context;
     private IFileResourceRepository _fileResourceRepository;
     private readonly HttpClient _httpClient;
+    private readonly IFileService _fileService;
 
-    public ResourcesService(IResourceRepository resourceRepository, ResourceBlenderEntities _context, IFileResourceRepository fileResourceRepository)
+    public ResourcesService(IResourceRepository resourceRepository, ResourceBlenderEntities _context, IFileResourceRepository fileResourceRepository, IFileService fileService)
     {
       _resourceRepository = resourceRepository;
       context = _context;
       _fileResourceRepository = fileResourceRepository;
       _httpClient = new HttpClient();
+      _fileService = fileService;
     }
 
     public List<ResourceViewModel> GetResourceViewModelList()
@@ -49,8 +54,13 @@ namespace ResourceBlender.Services.Implementations
       return viewModelList;
     }
 
-    public void AddResource(ResourceViewModel resourceViewModel)
+    public async  Task AddResource(ResourceViewModel resourceViewModel)
     {
+      var resourceExists = await CheckIfResourceWithNameExists(resourceViewModel.ResourceString);
+      if(resourceExists)
+      {
+        throw new ResourceAlreadyExistsException("This resource already exists");
+      }
       var resourceEntity = TinyMapper.Map<Resource>(resourceViewModel);
       _resourceRepository.AddResource(resourceEntity);
     }
@@ -166,6 +176,39 @@ namespace ResourceBlender.Services.Implementations
       }
     }
 
+    public async Task GenerateJavascriptResources(string localResourcesPath)
+    {
+      var resourcesDictionary = await GetResourcesDictionary();
+      var content = _fileService.GetJavascriptFile(resourcesDictionary);
+
+      try
+      {
+        var path = _fileService.GetJavaScriptFilePath(localResourcesPath);
+        using (var writer = System.IO.File.CreateText(path))
+        {
+          writer.Write(content);
+          writer.Flush();
+        }
+      }
+      catch(Exception ex)
+      {
+
+      }
+    }
+
+    async  Task<Dictionary<string, string>> GetResourcesDictionary()
+    {
+      var resources = await GetResourceViewModelListTask();
+      var resourceDictionary = new Dictionary<string, string>();
+
+      foreach (var resource in resources)
+      {
+        resourceDictionary[resource.ResourceString.ToLower()] = resource.RomanianTranslation;
+      }
+
+      return resourceDictionary;
+    }
+
     public async Task SendAndAddResource(ResourceViewModel resource)
     {
       var path = "http://localhost:53345/api/Resources/AddResource";
@@ -178,7 +221,7 @@ namespace ResourceBlender.Services.Implementations
     {
       var path = "http://localhost:53345/api/Resources/UpdateResource";
 
-      var resourceToUpdate = FindResourceByName(resource.ResourceString);
+      var resourceToUpdate = await FindResourceByName(resource.ResourceString);
       resource.Id = resourceToUpdate.Id;
 
       var jsonResource = JsonConvert.SerializeObject(resource);
@@ -189,22 +232,20 @@ namespace ResourceBlender.Services.Implementations
     {
       var path = "http://localhost:53345/api/Resources/DeleteResource?resourceId=";
 
-      var resourceToDelete = FindResourceByName(resource.ResourceString);
+      var resourceToDelete = await FindResourceByName(resource.ResourceString);
 
       var jsonResource = JsonConvert.SerializeObject(resourceToDelete.Id);
       HttpResponseMessage response = await _httpClient.DeleteAsync(path + resourceToDelete.Id);
-
     }
 
     public async Task<bool> CheckIfResourceWithNameExists(string resourceName)
     {
-      //Resoult will wait until Task completes and returns a result
       var resource = await FindResourceByName(resourceName);
       bool exists = resource != null ? true : false;
       return exists;
     }
 
-    private async Task<Resource> FindResourceByName(string resourceName)
+    public async Task<Resource> FindResourceByName(string resourceName)
     {
       var queryString = resourceName;
       var path = "http://localhost:53345/api/Resources/FindResourceByName?resourceName=" + resourceName;
@@ -216,6 +257,33 @@ namespace ResourceBlender.Services.Implementations
       var resource = JsonConvert.DeserializeObject<Resource>(jsonResource);
 
       return resource != null ? resource : null; 
+    }
+
+    public async Task<List<ResourceViewModel>> GetResourceViewModelListTask()
+    {
+      var path = "http://localhost:53345/api/Resources/GetAllResources";
+
+      var response = await _httpClient.GetAsync(path);
+
+      var jsonResources = await response.Content.ReadAsStringAsync();
+
+      var resourceList = JsonConvert.DeserializeObject<List<Resource>>(jsonResources);
+
+      if (resourceList != null)
+      {
+        var viewModelList = resourceList.Select(x =>
+                                             new ResourceViewModel
+                                             {
+                                               Id = x.Id,
+                                               ResourceString = x.ResourceString,
+                                               EnglishTranslation = x.EnglishTranslation,
+                                               RomanianTranslation = x.RomanianTranslation
+                                             }).ToList();
+
+        return viewModelList;
+      }
+
+      return null;
     }
 
     ResourceBlenderEntities AddToContext(ResourceBlenderEntities context, Resource entityToInsert, int count, int commitCount, bool recreateContext)

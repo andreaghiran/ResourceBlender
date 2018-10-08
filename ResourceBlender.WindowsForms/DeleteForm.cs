@@ -70,6 +70,7 @@ namespace ResourceBlender.WindowsForms
 
       await resourcesService.SendAndDeleteResource(resource);
       await resourcesService.ExtractResourcesToLocalFolder(resourceFolderPath);
+      await resourcesService.GenerateJavascriptResources(resourceFolderPath);
 
       componentOperation.ClearTextBoxes(this);
       this.Hide();
