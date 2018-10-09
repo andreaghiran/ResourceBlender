@@ -2,6 +2,7 @@
 using ResourceBlender.Repository.Contracts;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Data.Entity.Migrations;
 using System.Linq;
 using System.Text;
@@ -40,9 +41,9 @@ namespace ResourceBlender.Repository.Implementations
 
       if (updatedResource != null)
       {
-        updatedResource.ResourceString = resource.ResourceString;
-        updatedResource.RomanianTranslation = resource.RomanianTranslation;
-        updatedResource.EnglishTranslation = resource.EnglishTranslation;
+        updatedResource.ResourceString = resource.ResourceString != string.Empty ? resource.ResourceString : updatedResource.ResourceString;
+        updatedResource.RomanianTranslation = resource.RomanianTranslation != string.Empty ? resource.RomanianTranslation : updatedResource.RomanianTranslation;
+        updatedResource.EnglishTranslation = resource.EnglishTranslation != string.Empty ? resource.EnglishTranslation : updatedResource.EnglishTranslation;
         _dbContext.SaveChanges();
       }
     }
@@ -55,6 +56,11 @@ namespace ResourceBlender.Repository.Implementations
         _dbContext.Resources.Remove(resource);
         _dbContext.SaveChanges();
       }
+    }
+
+    public async Task<Resource> GetResourceByName(string name)
+    {
+      return await _dbContext.Resources.Where(x => x.ResourceString.Trim().ToLower().Equals(name.Trim().ToLower())).FirstOrDefaultAsync();
     }
   }
 }

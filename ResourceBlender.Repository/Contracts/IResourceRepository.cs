@@ -14,5 +14,6 @@ namespace ResourceBlender.Repository.Contracts
     Resource GetResourceById(int id);
     void EditResource(Resource resource);
     void DeleteResource(int id);
+    Task<Resource> GetResourceByName(string name);
   }
 }

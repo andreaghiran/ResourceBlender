@@ -1,16 +1,24 @@
-﻿using PagedList;
+﻿using Ionic.Zip;
+using Nelibur.ObjectMapper;
+using PagedList;
 using ResourceBlender.Common.Enums;
+using ResourceBlender.Common.Exceptions;
 using ResourceBlender.Common.FileGeneration;
 using ResourceBlender.Common.ViewModels;
 using ResourceBlender.Domain;
 using ResourceBlender.Repository.Contracts;
 using ResourceBlender.Services.Contracts;
+using System;
 using System.Activities.Statements;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Resources;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 
@@ -29,29 +37,35 @@ namespace ResourceBlender.Presentation.Controllers
       _fileService = fileService;
     }
 
-    public ActionResult Index(int? page, string searchTerm="")
+    public async Task<ActionResult> Index(int? page, string searchTerm = "")
     {
-      var viewModel = _resourcesService.GetResourceViewModelList();
+      //var viewModel = _resourcesService.GetResourceViewModelList();
+      var viewModel = await _resourcesService.GetResourceViewModelListTask();
 
-      if (!string.IsNullOrEmpty(searchTerm))
+      if (viewModel == null)
       {
-        searchTerm = searchTerm.ToLower();
-        viewModel = _resourcesService.GetResourceViewModelList().Where(x => x.ResourceString.ToLower().Contains(searchTerm) ||
-                                                                            x.EnglishTranslation.ToLower().Contains(searchTerm) ||
-                                                                            x.RomanianTranslation.ToLower().Contains(searchTerm))
-                                                                            .ToList();
+        return View(viewModel);
       }
+      else
 
-      int pageSize = 10;
-      int pageNumber = (page ?? 1);
-      return View(viewModel.ToPagedList(pageNumber, pageSize));
+      {
+        if (!string.IsNullOrEmpty(searchTerm))
+        {
+          searchTerm = searchTerm.ToLower();
+          viewModel = _resourcesService.GetResourceViewModelList().Where(x => x.ResourceString.ToLower().Contains(searchTerm) ||
+                                                                              x.EnglishTranslation.ToLower().Contains(searchTerm) ||
+                                                                              x.RomanianTranslation.ToLower().Contains(searchTerm))
+                                                                              .ToList();
+        }
+
+        int pageSize = 10;
+        int pageNumber = (page ?? 1);
+        return View(viewModel.ToPagedList(pageNumber, pageSize));
+      }
     }
 
     [HttpGet]
-    public ActionResult ImportResources()
-    {
-      return View();
-    }
+    public ActionResult ImportResources() => View();
 
 
     [HttpPost]
@@ -71,33 +85,43 @@ namespace ResourceBlender.Presentation.Controllers
       }
       else
       {
-       
+
         return View(model);
       }
     }
 
-    public ActionResult ExportRomanianResources()
+    public PartialViewResult ShowErrorMessage(string message)
     {
-      return new FileGeneratingResult("Resources.ro.resx","application/xml", stream => _fileService.GenerateExportFile(stream, LanguageEnumeration.Romanian));
+      return PartialView("_Error");
     }
 
-    public ActionResult ExportEnglishResources()
+    public ActionResult ExportResources()
     {
-      return new FileGeneratingResult("Resources.resx", "application/xml", stream => _fileService.GenerateExportFile(stream, LanguageEnumeration.English));
+      var archive = _fileService.GetArchive();
+      return File(archive.ToArray(), "application/zip", "res.zip");
     }
 
+    //public ActionResult ExportEnglishResources()
+    //{
+    //  return new FileGeneratingResult("Resources.resx", "application/xml", stream => _fileService.GenerateExportFile(stream, LanguageEnumeration.English));
+    //}
 
-    public ActionResult AddResource()
-    {
-      return View();
-    }
+    public ActionResult AddResource() => View();
 
     [HttpPost]
-    public ActionResult AddResource(ResourceViewModel model)
+    public async Task<ActionResult> AddResource(ResourceViewModel model)
     {
       if (ModelState.IsValid)
       {
-        _resourcesService.AddResource(model);
+        var resourceAlreadyExists = await _resourcesService.CheckIfResourceWithNameExists(model.ResourceString);
+
+        if(resourceAlreadyExists)
+        {
+          TempData["ErrorMessage"] = "Resource already exists.";
+          return View(model);
+        }
+
+        await _resourcesService.SendAndAddResource(model);
         return RedirectToAction("Index");
       }
       else
@@ -106,36 +130,55 @@ namespace ResourceBlender.Presentation.Controllers
       }
     }
 
-    public ActionResult Update(int? id)
+    public async Task<ActionResult> Update(string resourceName)
     {
-      ResourceViewModel viewModel = _resourcesService.GetResourceById(id ?? 0);
+      Resource resource = await _resourcesService.FindResourceByName(resourceName);
 
-      return View(viewModel);
-    }
+      if (resource != null)
+      {
+        ResourceViewModel viewModel = TinyMapper.Map<ResourceViewModel>(resource);
+        return View(viewModel);
+      }
 
-    [HttpPost]
-    public ActionResult Update(ResourceViewModel model)
-    {
-      _resourcesService.EditResource(model);
       return RedirectToAction("Index");
     }
 
-    public ActionResult Delete(int? id)
+    [HttpPost]
+    public async Task<ActionResult> Update(ResourceViewModel model)
     {
-      ResourceViewModel viewModel = _resourcesService.GetResourceById(id ?? 0);
-      return View(viewModel);
+      if (ModelState.IsValid)
+      {
+        await _resourcesService.SendAndUpdateResource(model);
+        return RedirectToAction("Index");
+      }
+      else
+      {
+        return View(model);
+      }
+    }
+
+    public async Task<ActionResult> Delete(string resourceName)
+    {
+      Resource resource = await _resourcesService.FindResourceByName(resourceName);
+
+      if(resource != null)
+      {
+        ResourceViewModel viewModel = TinyMapper.Map<ResourceViewModel>(resource);
+        return View(viewModel);
+      }
+      else
+      {
+        return RedirectToAction("Index");
+      }
     }
 
     [HttpPost]
-    public ActionResult DeleteResource(int id)
+    public async Task<ActionResult> DeleteResource(ResourceViewModel viewModel)
     {
-      _resourceRepository.DeleteResource(id);
+      await _resourcesService.SendAndDeleteResource(viewModel);
       return RedirectToAction("Index");
     }
 
-    public ActionResult GenerateResources()
-    {
-      return View();
-    }
+    public ActionResult GenerateResources() => View();
   }
 }

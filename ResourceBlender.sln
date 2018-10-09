@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResourceBlender.Presentatio
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResourceBlender.Common", "ResourceBlender.Common\ResourceBlender.Common.csproj", "{8169575C-0263-4256-B0C3-653084B6E515}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResourceBlender.WindowsForms", "ResourceBlender.WindowsForms\ResourceBlender.WindowsForms.csproj", "{8DCB1863-1A24-431E-B04B-9BC527DBEF85}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{8169575C-0263-4256-B0C3-653084B6E515}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8169575C-0263-4256-B0C3-653084B6E515}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8169575C-0263-4256-B0C3-653084B6E515}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8DCB1863-1A24-431E-B04B-9BC527DBEF85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8DCB1863-1A24-431E-B04B-9BC527DBEF85}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8DCB1863-1A24-431E-B04B-9BC527DBEF85}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8DCB1863-1A24-431E-B04B-9BC527DBEF85}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
