@@ -30,6 +30,12 @@ namespace ResourceBlender.Services.Implementations
     private IFileResourceRepository _fileResourceRepository;
     private readonly HttpClient _httpClient;
     private readonly IFileService _fileService;
+    string _baseUri;
+
+    private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+    public string BaseUri { get { return _baseUri; } set => _baseUri = value; }
+
 
     public ResourcesService(IResourceRepository resourceRepository, ResourceBlenderEntities _context, IFileResourceRepository fileResourceRepository, IFileService fileService)
     {
@@ -162,7 +168,7 @@ namespace ResourceBlender.Services.Implementations
 
     public async Task ExtractResourcesToLocalFolder(string localResourcesPath)
     {
-      var path = "http://localhost:53345/api/Resources/GetZip";
+      var path = BaseUri + "/api/Resources/GetZip";
       HttpResponseMessage response = await _httpClient.GetAsync(path);
 
       var jsonMessage = await response.Content.ReadAsByteArrayAsync();
@@ -211,7 +217,7 @@ namespace ResourceBlender.Services.Implementations
 
     public async Task SendAndAddResource(ResourceViewModel resource)
     {
-      var path = "http://localhost:53345/api/Resources/AddResource";
+      var path = BaseUri + "/api/Resources/AddResource";
       var jsonResource = JsonConvert.SerializeObject(resource);
 
       HttpResponseMessage response = await _httpClient.PostAsync(path, new StringContent(jsonResource, Encoding.UTF8, "application/json"));
@@ -219,7 +225,7 @@ namespace ResourceBlender.Services.Implementations
 
     public async Task SendAndUpdateResource(ResourceViewModel resource)
     {
-      var path = "http://localhost:53345/api/Resources/UpdateResource";
+      var path = BaseUri + "/api/Resources/UpdateResource";
 
       var resourceToUpdate = await FindResourceByName(resource.ResourceString);
       resource.Id = resourceToUpdate.Id;
@@ -230,7 +236,7 @@ namespace ResourceBlender.Services.Implementations
 
     public async Task SendAndDeleteResource(ResourceViewModel resource)
     {
-      var path = "http://localhost:53345/api/Resources/DeleteResource?resourceId=";
+      var path = BaseUri + "/api/Resources/DeleteResource?resourceId=";
 
       var resourceToDelete = await FindResourceByName(resource.ResourceString);
 
@@ -248,7 +254,7 @@ namespace ResourceBlender.Services.Implementations
     public async Task<Resource> FindResourceByName(string resourceName)
     {
       var queryString = resourceName;
-      var path = "http://localhost:53345/api/Resources/FindResourceByName?resourceName=" + resourceName;
+      var path = BaseUri + "/api/Resources/FindResourceByName?resourceName=" + resourceName;
 
       HttpResponseMessage result = await _httpClient.GetAsync(path);
 
@@ -261,11 +267,18 @@ namespace ResourceBlender.Services.Implementations
 
     public async Task<List<ResourceViewModel>> GetResourceViewModelListTask()
     {
-      var path = "http://localhost:53345/api/Resources/GetAllResources";
+      var path = BaseUri + "/api/Resources/GetAllResources";
 
       var response = await _httpClient.GetAsync(path);
-
+      
       var jsonResources = await response.Content.ReadAsStringAsync();
+
+      log.Info(jsonResources);
+
+      if (string.IsNullOrEmpty(jsonResources))
+      {
+        return new List<ResourceViewModel>();
+      }
 
       var resourceList = JsonConvert.DeserializeObject<List<Resource>>(jsonResources);
 

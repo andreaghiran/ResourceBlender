@@ -9,6 +9,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Http;
 
 namespace ResourceBlender.Presentation.ApiControllers
@@ -17,11 +18,27 @@ namespace ResourceBlender.Presentation.ApiControllers
   {
     private readonly IFileService fileService;
     private readonly IResourceRepository resourceRepository;
+    private readonly IResourcesService resourcesService;
 
-    public ResourcesController(IFileService _fileService, IResourceRepository _resourceRepository)
+    public ResourcesController(IFileService _fileService, IResourceRepository _resourceRepository, IResourcesService _resourcesService)
     {
       fileService = _fileService;
       resourceRepository = _resourceRepository;
+      resourcesService = _resourcesService;
+      resourcesService.BaseUri = GetUrl();
+    }
+
+    string GetUrl()
+    {
+      var request = HttpContext.Current.Request;
+      var appUrl = HttpRuntime.AppDomainAppVirtualPath;
+
+      if (appUrl != "/")
+        appUrl = "/" + appUrl;
+
+      var baseUrl = string.Format("{0}://{1}{2}", request.Url.Scheme, request.Url.Authority, appUrl);
+
+      return baseUrl;
     }
 
     [HttpGet]
@@ -49,7 +66,7 @@ namespace ResourceBlender.Presentation.ApiControllers
 
       return result;
     }
-    
+
     [HttpPost]
     public IHttpActionResult AddResource(ResourceViewModel resource)
     {

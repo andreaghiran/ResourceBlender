@@ -1,26 +1,14 @@
-﻿using Ionic.Zip;
-using Nelibur.ObjectMapper;
+﻿using Nelibur.ObjectMapper;
 using PagedList;
-using ResourceBlender.Common.Enums;
-using ResourceBlender.Common.Exceptions;
-using ResourceBlender.Common.FileGeneration;
 using ResourceBlender.Common.ViewModels;
 using ResourceBlender.Domain;
 using ResourceBlender.Repository.Contracts;
 using ResourceBlender.Services.Contracts;
-using System;
-using System.Activities.Statements;
-using System.Collections;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Resources;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+
 
 namespace ResourceBlender.Presentation.Controllers
 {
@@ -29,12 +17,26 @@ namespace ResourceBlender.Presentation.Controllers
     private readonly IResourcesService _resourcesService;
     private readonly IResourceRepository _resourceRepository;
     private readonly IFileService _fileService;
-
+    
     public ResourcesController(IResourcesService resourcesService, IResourceRepository resourceRepository, IFileService fileService)
     {
       _resourcesService = resourcesService;
+      resourcesService.BaseUri = GetUrl();
       _resourceRepository = resourceRepository;
       _fileService = fileService;
+    }
+
+    string GetUrl()
+    {
+      var request =System.Web.HttpContext.Current.Request;
+      var appUrl = HttpRuntime.AppDomainAppVirtualPath;
+
+      if (appUrl != "/")
+        appUrl = "/" + appUrl;
+
+      var baseUrl = string.Format("{0}://{1}{2}", request.Url.Scheme, request.Url.Authority, appUrl);
+
+      return baseUrl;
     }
 
     public async Task<ActionResult> Index(int? page, string searchTerm = "")

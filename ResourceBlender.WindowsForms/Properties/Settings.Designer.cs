@@ -34,5 +34,17 @@ namespace ResourceBlender.WindowsForms.Properties {
                 this["ResourcesPath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string BaseUri {
+            get {
+                return ((string)(this["BaseUri"]));
+            }
+            set {
+                this["BaseUri"] = value;
+            }
+        }
     }
 }

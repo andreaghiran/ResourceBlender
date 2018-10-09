@@ -22,6 +22,7 @@ namespace ResourceBlender.WindowsForms
       InitializeComponent();
       componentOperation = _componentOperation;
       resourcesService = _resourcesService;
+      resourcesService.BaseUri = Properties.Settings.Default.BaseUri;
       httpClient = new HttpClient();
     }
 

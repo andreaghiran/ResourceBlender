@@ -4,7 +4,6 @@ using ResourceBlender.WindowsForms.Services.Interfaces;
 using System;
 using System.ComponentModel;
 using System.Net.Http;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ResourceBlender.WindowsForms
@@ -22,6 +21,7 @@ namespace ResourceBlender.WindowsForms
       InitializeComponent();
       componentOperation = _componentOperation;
       resourcesService = _resourcesService;
+      resourcesService.BaseUri = Properties.Settings.Default.BaseUri;
       httpClient = new HttpClient();
     }
 
@@ -78,6 +78,8 @@ namespace ResourceBlender.WindowsForms
 
       ResourceViewModel resource = new ResourceViewModel();
       resource.ResourceString = resourceTextBox.Text;
+
+      resourcesService.BaseUri = Properties.Settings.Default.BaseUri;
 
       await resourcesService.SendAndDeleteResource(resource);
       await resourcesService.ExtractResourcesToLocalFolder(resourceFolderPath);

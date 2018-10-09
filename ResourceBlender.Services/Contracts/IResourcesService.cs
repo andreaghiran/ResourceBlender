@@ -27,5 +27,6 @@ namespace ResourceBlender.Services.Contracts
     Task<Resource> FindResourceByName(string resourceName);
     Task<List<ResourceViewModel>> GetResourceViewModelListTask();
     Task GenerateJavascriptResources(string localResourcesPath);
+    string BaseUri { get; set; }
   }
 }

@@ -10,7 +10,7 @@ namespace ResourceBlender.WindowsForms
     private readonly IResourcesService resourcesService;
     private readonly AddForm addForm;
     private readonly EditForm editForm;
-    private readonly DeleteForm deleteForm;
+    private  readonly DeleteForm deleteForm;
 
     public MainForm(IResourcesService _resourcesService, AddForm _addForm, EditForm _editForm, DeleteForm _deleteForm)
     {
@@ -20,6 +20,13 @@ namespace ResourceBlender.WindowsForms
       editForm = _editForm;
       deleteForm = _deleteForm;
     }
+
+    private void MainForm_Load(object sender, EventArgs e)
+    {
+      txtBoxUrl.Text = Properties.Settings.Default.BaseUri;
+      txtFMF.Text = Properties.Settings.Default.ResourcesPath;
+    }
+
 
     private void addButton_Click(object sender, EventArgs e)
     {
@@ -35,5 +42,22 @@ namespace ResourceBlender.WindowsForms
     {
       deleteForm.Show();
     }
+
+    private void btnSetUrl_Click(object sender, EventArgs e)
+    {
+      var url = txtBoxUrl.Text;
+
+      Properties.Settings.Default.BaseUri = url;
+      Properties.Settings.Default.Save();
+    }
+
+    private void btnSetFWFOlder_Click(object sender, EventArgs e)
+    {
+      var resourcesPath = txtFMF.Text;
+
+      Properties.Settings.Default.ResourcesPath = resourcesPath;
+      Properties.Settings.Default.Save();
+    }
+   
   }
 }

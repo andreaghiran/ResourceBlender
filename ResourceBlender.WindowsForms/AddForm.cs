@@ -18,6 +18,7 @@ namespace ResourceBlender.WindowsForms
     {
       InitializeComponent();
       resourceService = _resourceService;
+      resourceService.BaseUri = Properties.Settings.Default.BaseUri;
       componentOperation = _componentOperation;
     }
 
