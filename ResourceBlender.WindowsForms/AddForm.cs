@@ -29,7 +29,6 @@ namespace ResourceBlender.WindowsForms
 
     private async void addFormSubmitButton_Click(object sender, EventArgs e)
     {
-
       var defaultResourcesPath = Properties.Settings.Default.ResourcesPath;
 
       var isFormValid = ValidateChildren();
@@ -56,14 +55,6 @@ namespace ResourceBlender.WindowsForms
         resourceFolderPath = defaultResourcesPath;
       }
 
-      if (resourceFolderPath.Equals(String.Empty))
-      {
-        MessageBox.Show("Not a valid folder.");
-        return;
-      }
-
-
-
       isFormValid =!(await resourceService.CheckIfResourceWithNameExists(resourceStringTextBox.Text));
       if (!isFormValid)
       {
@@ -71,8 +62,11 @@ namespace ResourceBlender.WindowsForms
         return;
       }
 
-      Properties.Settings.Default.ResourcesPath = resourceFolderPath;
-      Properties.Settings.Default.Save();
+      if (resourceFolderPath != null && !resourceFolderPath.Equals(String.Empty))
+      {
+        Properties.Settings.Default.ResourcesPath = resourceFolderPath;
+        Properties.Settings.Default.Save();
+      }
 
       ResourceViewModel resource = new ResourceViewModel();
 
