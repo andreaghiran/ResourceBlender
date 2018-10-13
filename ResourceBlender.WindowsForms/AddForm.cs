@@ -11,7 +11,6 @@ namespace ResourceBlender.WindowsForms
   {
     private readonly IResourcesService resourceService;
     private readonly IComponentOperation componentOperation;
-    private string resourceFolderPath;
     private ErrorProvider errorProvider;
 
     public AddForm(IResourcesService _resourceService, IComponentOperation _componentOperation)
@@ -30,8 +29,7 @@ namespace ResourceBlender.WindowsForms
 
     private async void addFormSubmitButton_Click(object sender, EventArgs e)
     {
-      var defaultResourcesPath = Properties.Settings.Default.ResourcesPath;
-
+      
       var isFormValid = ValidateChildren();
 
       if (!isFormValid)
@@ -40,35 +38,13 @@ namespace ResourceBlender.WindowsForms
         return;
       }
 
-
-      if (defaultResourcesPath.Equals(string.Empty))
-      {
-        isFormValid = !(resourceFolderPath == null);
-        if (!isFormValid)
-        {
-          MessageBox.Show("You must choose a folder.");
-          return;
-        }
-      }
-
-      if(!defaultResourcesPath.Equals(string.Empty) && resourceFolderPath == null)
-      {
-        resourceFolderPath = defaultResourcesPath;
-      }
-
       isFormValid =!(await resourceService.CheckIfResourceWithNameExists(resourceStringTextBox.Text));
       if (!isFormValid)
       {
         MessageBox.Show("A resource with the same name already exists.");
         return;
       }
-
-      if (resourceFolderPath != null && !resourceFolderPath.Equals(String.Empty))
-      {
-        Properties.Settings.Default.ResourcesPath = resourceFolderPath;
-        Properties.Settings.Default.Save();
-      }
-
+            
       ResourceViewModel resource = new ResourceViewModel();
 
       resource.ResourceString = resourceStringTextBox.Text;
@@ -76,16 +52,12 @@ namespace ResourceBlender.WindowsForms
       resource.RomanianTranslation = romanianTranslationTextBox.Text;
 
       await resourceService.SendAndAddResource(resource);
-      await resourceService.ExtractResourcesToLocalFolder(resourceFolderPath);
-      await resourceService.GenerateJavascriptResources(resourceFolderPath);
+      await resourceService.ExtractResourcesToLocalFolder(Properties.Settings.Default.ResourcesPath);
+      await resourceService.GenerateJavascriptResources(Properties.Settings.Default.ResourcesPath);
 
       componentOperation.ClearTextBoxes(this);
+      MessageBox.Show("Added resource.");
       this.Hide();
-    }
-
-    private void chooseResourceFolderButton_Click(object sender, EventArgs e)
-    {
-      resourceFolderPath = componentOperation.SetResourceFolderPath();
     }
 
     private void textBox_Validating(object sender, CancelEventArgs e)

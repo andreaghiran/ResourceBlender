@@ -168,7 +168,7 @@ namespace ResourceBlender.Services.Implementations
 
     public async Task ExtractResourcesToLocalFolder(string localResourcesPath)
     {
-      var path = BaseUri + "/api/Resources/GetZip";
+      var path = BaseUri + "api/Resources/GetZip";
       HttpResponseMessage response = await _httpClient.GetAsync(path);
 
       var jsonMessage = await response.Content.ReadAsByteArrayAsync();
@@ -217,7 +217,7 @@ namespace ResourceBlender.Services.Implementations
 
     public async Task SendAndAddResource(ResourceViewModel resource)
     {
-      var path = BaseUri + "/api/Resources/AddResource";
+      var path = BaseUri + "api/Resources/AddResource";
       var jsonResource = JsonConvert.SerializeObject(resource);
 
       HttpResponseMessage response = await _httpClient.PostAsync(path, new StringContent(jsonResource, Encoding.UTF8, "application/json"));
@@ -225,7 +225,7 @@ namespace ResourceBlender.Services.Implementations
 
     public async Task SendAndUpdateResource(ResourceViewModel resource)
     {
-      var path = BaseUri + "/api/Resources/UpdateResource";
+      var path = BaseUri + "api/Resources/UpdateResource";
 
       var resourceToUpdate = await FindResourceByName(resource.ResourceString);
       resource.Id = resourceToUpdate.Id;
@@ -236,7 +236,7 @@ namespace ResourceBlender.Services.Implementations
 
     public async Task SendAndDeleteResource(ResourceViewModel resource)
     {
-      var path = BaseUri + "/api/Resources/DeleteResource?resourceId=";
+      var path = BaseUri + "api/Resources/DeleteResource?resourceId=";
 
       var resourceToDelete = await FindResourceByName(resource.ResourceString);
 
@@ -254,7 +254,7 @@ namespace ResourceBlender.Services.Implementations
     public async Task<Resource> FindResourceByName(string resourceName)
     {
       var queryString = resourceName;
-      var path = BaseUri + "/api/Resources/FindResourceByName?resourceName=" + resourceName;
+      var path = BaseUri + "api/Resources/FindResourceByName?resourceName=" + resourceName;
 
       HttpResponseMessage result = await _httpClient.GetAsync(path);
 
@@ -267,7 +267,7 @@ namespace ResourceBlender.Services.Implementations
 
     public async Task<List<ResourceViewModel>> GetResourceViewModelListTask()
     {
-      var path = BaseUri + "/api/Resources/GetAllResources";
+      var path = BaseUri + "api/Resources/GetAllResources";
 
       var response = await _httpClient.GetAsync(path);
       

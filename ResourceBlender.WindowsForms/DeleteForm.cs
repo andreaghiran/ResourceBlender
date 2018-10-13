@@ -8,107 +8,87 @@ using System.Windows.Forms;
 
 namespace ResourceBlender.WindowsForms
 {
-  public partial class DeleteForm : Form
-  {
-    private string resourceFolderPath;
-    private readonly IComponentOperation componentOperation;
-    private readonly IResourcesService resourcesService;
-    private HttpClient httpClient;
-    private ErrorProvider errorProvider;
-
-    public DeleteForm(IResourcesService _resourcesService, IComponentOperation _componentOperation)
+    public partial class DeleteForm : Form
     {
-      InitializeComponent();
-      componentOperation = _componentOperation;
-      resourcesService = _resourcesService;
-      resourcesService.BaseUri = Properties.Settings.Default.BaseUri;
-      httpClient = new HttpClient();
-    }
+        private readonly IComponentOperation componentOperation;
+        private readonly IResourcesService resourcesService;
+        private HttpClient httpClient;
+        private ErrorProvider errorProvider;
 
-    private void cancelButton_Click(object sender, EventArgs e)
-    {
-      componentOperation.ClearTextBoxes(this);
-      this.Hide();
-    }
-
-    private void resourceFolderButton_Click(object sender, EventArgs e)
-    {
-      resourceFolderPath = componentOperation.SetResourceFolderPath();
-    }
-
-    private async void deleteAndGenerateButton_Click(object sender, EventArgs e)
-    {
-      var defaultResourcesPath = Properties.Settings.Default.ResourcesPath;
-
-      var isFormValid = ValidateChildren();
-
-      if (!isFormValid)
-      {
-        MessageBox.Show("The resource field is required.");
-        return;
-      }
-
-      if (defaultResourcesPath.Equals(string.Empty))
-      {
-        isFormValid = !(resourceFolderPath == null);
-        if (!isFormValid)
+        public DeleteForm(IResourcesService _resourcesService, IComponentOperation _componentOperation)
         {
-          MessageBox.Show("You must choose a folder.");
-          return;
+            InitializeComponent();
+            componentOperation = _componentOperation;
+            resourcesService = _resourcesService;
+            resourcesService.BaseUri = Properties.Settings.Default.BaseUri;
+            httpClient = new HttpClient();
         }
-      }
 
-      if (!defaultResourcesPath.Equals(string.Empty) && resourceFolderPath == null)
-      {
-        resourceFolderPath = defaultResourcesPath;
-      }
+        private void cancelButton_Click(object sender, EventArgs e)
+        {
+            componentOperation.ClearTextBoxes(this);
+            this.Hide();
+        }
 
-      isFormValid = await resourcesService.CheckIfResourceWithNameExists(resourceTextBox.Text);
-      if (!isFormValid)
-      {
-        MessageBox.Show("The resource could not be found.");
-        return;
-      }
 
-      if (resourceFolderPath != null && !resourceFolderPath.Equals(String.Empty))
-      {
-        Properties.Settings.Default.ResourcesPath = resourceFolderPath;
-        Properties.Settings.Default.Save();
-      }
+        private async void deleteAndGenerateButton_Click(object sender, EventArgs e)
+        {
+            var isFormValid = ValidateChildren();
 
-      ResourceViewModel resource = new ResourceViewModel();
-      resource.ResourceString = resourceTextBox.Text;
+            if (!isFormValid)
+            {
+                MessageBox.Show("The resource field is required.");
+                return;
+            }
 
-      resourcesService.BaseUri = Properties.Settings.Default.BaseUri;
+            isFormValid = await resourcesService.CheckIfResourceWithNameExists(resourceTextBox.Text);
+            if (!isFormValid)
+            {
+                MessageBox.Show("The resource could not be found.");
+                return;
+            }
 
-      await resourcesService.SendAndDeleteResource(resource);
-      await resourcesService.ExtractResourcesToLocalFolder(resourceFolderPath);
-      await resourcesService.GenerateJavascriptResources(resourceFolderPath);
+            try
+            {
+                ResourceViewModel resource = new ResourceViewModel();
+                resource.ResourceString = resourceTextBox.Text;
 
-      componentOperation.ClearTextBoxes(this);
-      this.Hide();
+                resourcesService.BaseUri = Properties.Settings.Default.BaseUri;
+
+                await resourcesService.SendAndDeleteResource(resource);
+                await resourcesService.ExtractResourcesToLocalFolder(Properties.Settings.Default.ResourcesPath);
+                await resourcesService.GenerateJavascriptResources(Properties.Settings.Default.ResourcesPath);
+
+                componentOperation.ClearTextBoxes(this);
+                MessageBox.Show("Deleted resource.");
+                this.Hide();
+            }
+            catch(Exception)
+            {
+                MessageBox.Show("Something went wrong. Check to see if your framework folder and base path are correctly set.");
+            }
+        }
+
+        private void textBox_Validating(object sender, CancelEventArgs e)
+        {
+            TextBox tb = (TextBox)sender;
+            errorProvider = new ErrorProvider();
+            if (String.IsNullOrEmpty(tb.Text))
+            {
+                errorProvider.SetError(tb, "This field is required.");
+                e.Cancel = true;
+            }
+            else
+            {
+                e.Cancel = false;
+            }
+
+            errorProvider.SetError(tb, String.Empty);
+        }
+
+        private void DeleteForm_Load(object sender, EventArgs e)
+        {
+            this.AutoValidate = AutoValidate.Disable;
+        }
     }
-
-    private void textBox_Validating(object sender, CancelEventArgs e)
-    {
-      TextBox tb = (TextBox)sender;
-      errorProvider = new ErrorProvider();
-      if (String.IsNullOrEmpty(tb.Text))
-      {
-        errorProvider.SetError(tb, "This field is required.");
-        e.Cancel = true;
-      }
-      else
-      {
-        e.Cancel = false;
-      }
-
-      errorProvider.SetError(tb, String.Empty);
-    }
-
-    private void DeleteForm_Load(object sender, EventArgs e)
-    {
-      this.AutoValidate = AutoValidate.Disable;
-    }
-  }
 }

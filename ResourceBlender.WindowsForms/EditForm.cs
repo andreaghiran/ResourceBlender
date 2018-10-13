@@ -11,7 +11,6 @@ namespace ResourceBlender.WindowsForms
 {
   public partial class EditForm : Form
   {
-    private string resourceFolderPath;
     private readonly IComponentOperation componentOperation;
     private readonly IResourcesService resourcesService;
     private HttpClient httpClient;
@@ -26,15 +25,9 @@ namespace ResourceBlender.WindowsForms
       httpClient = new HttpClient();
     }
 
-    private void chooseResourceFolderButton_Click(object sender, EventArgs e)
-    {
-      resourceFolderPath = componentOperation.SetResourceFolderPath();
-    }
 
     private async void updateAndGenerateButton_Click(object sender, EventArgs e)
     {
-      var defaultResourcesPath = Properties.Settings.Default.ResourcesPath;
-
       bool isFormValid = ValidateChildren();
 
       if (!isFormValid)
@@ -42,35 +35,14 @@ namespace ResourceBlender.WindowsForms
         MessageBox.Show("The resource field is required.");
         return;
       }
-
-      if (defaultResourcesPath.Equals(string.Empty))
-      {
-        isFormValid = !(resourceFolderPath == null);
-        if (!isFormValid)
-        {
-          MessageBox.Show("You must choose a folder.");
-          return;
-        }
-      }
-
-      if (!defaultResourcesPath.Equals(string.Empty) && resourceFolderPath == null)
-      {
-        resourceFolderPath = defaultResourcesPath;
-      }
-
+      
       isFormValid = await resourcesService.CheckIfResourceWithNameExists(resourceTextBox.Text);
       if (!isFormValid)
       {
         MessageBox.Show("The resource could not be found.");
         return;
       }
-
-      if (resourceFolderPath != null && !resourceFolderPath.Equals(String.Empty))
-      {
-        Properties.Settings.Default.ResourcesPath = resourceFolderPath;
-        Properties.Settings.Default.Save();
-      }
-
+      
       ResourceViewModel resource = new ResourceViewModel();
 
       resource.ResourceString = resourceTextBox.Text;
@@ -78,10 +50,11 @@ namespace ResourceBlender.WindowsForms
       resource.RomanianTranslation = romanianTranslationTextBox.Text;
 
       await resourcesService.SendAndUpdateResource(resource);
-      await resourcesService.ExtractResourcesToLocalFolder(resourceFolderPath);
-      await resourcesService.GenerateJavascriptResources(resourceFolderPath);
+      await resourcesService.ExtractResourcesToLocalFolder(Properties.Settings.Default.ResourcesPath);
+      await resourcesService.GenerateJavascriptResources(Properties.Settings.Default.ResourcesPath);
 
       componentOperation.ClearTextBoxes(this);
+      MessageBox.Show("Updated resource.");
       this.Hide();
     }
 
