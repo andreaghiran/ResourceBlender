@@ -69,6 +69,7 @@
   <ItemGroup>
     <Compile Include="Enums\LanguageEnumeration.cs" />
     <Compile Include="Exceptions\ResourceAlreadyExistsException.cs" />
+    <Compile Include="Exceptions\ResourceDoesNotExistException.cs" />
     <Compile Include="FileGeneration\FileGeneratingResult.cs" />
     <Compile Include="FileGeneration\ZipArchiveExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

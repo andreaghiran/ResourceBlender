@@ -12,21 +12,17 @@ namespace ResourceBlender.Services.Contracts
 {
   public interface IResourcesService
   {
-    List<ResourceViewModel> GetResourceViewModelList();
-    Task AddResource(ResourceViewModel resource);
+    Task<List<ResourceViewModel>> GetResources();
     ResourceViewModel GetResourceById(int id);
-    void EditResource(ResourceViewModel resourceViewModel);
+    Task AddResource(ResourceViewModel resource);
+    Task UpdateResource(ResourceViewModel resource);
+    Task DeleteResource(ResourceViewModel resource);
+
     void AddOrUpdateRomanianResourcesOnImport(HttpPostedFileBase resourceFile);
     void AddOrUpdateEnglishResourcesOnImport(HttpPostedFileBase resourceFile);
-    List<Resource> GetAllResources();
+
     Task ExtractResourcesToLocalFolder(string path);
-    Task SendAndAddResource(ResourceViewModel resource);
-    Task SendAndUpdateResource(ResourceViewModel resource);
-    Task SendAndDeleteResource(ResourceViewModel resource);
-    Task<bool> CheckIfResourceWithNameExists(string resourceName);
-    Task<Resource> FindResourceByName(string resourceName);
-    Task<List<ResourceViewModel>> GetResourceViewModelListTask();
-    Task GenerateJavascriptResources(string localResourcesPath);
+
     string BaseUri { get; set; }
   }
 }

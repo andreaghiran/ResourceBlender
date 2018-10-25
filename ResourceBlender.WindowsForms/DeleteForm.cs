@@ -1,4 +1,5 @@
-﻿using ResourceBlender.Common.ViewModels;
+﻿using ResourceBlender.Common.Exceptions;
+using ResourceBlender.Common.ViewModels;
 using ResourceBlender.Services.Contracts;
 using ResourceBlender.WindowsForms.Services.Interfaces;
 using System;
@@ -41,31 +42,26 @@ namespace ResourceBlender.WindowsForms
                 return;
             }
 
-            isFormValid = await resourcesService.CheckIfResourceWithNameExists(resourceTextBox.Text);
-            if (!isFormValid)
-            {
-                MessageBox.Show("The resource could not be found.");
-                return;
-            }
-
             try
             {
                 ResourceViewModel resource = new ResourceViewModel();
                 resource.ResourceString = resourceTextBox.Text;
-
                 resourcesService.BaseUri = Properties.Settings.Default.BaseUri;
 
-                await resourcesService.SendAndDeleteResource(resource);
+                await resourcesService.DeleteResource(resource);
                 await resourcesService.ExtractResourcesToLocalFolder(Properties.Settings.Default.ResourcesPath);
-                await resourcesService.GenerateJavascriptResources(Properties.Settings.Default.ResourcesPath);
 
                 componentOperation.ClearTextBoxes(this);
                 MessageBox.Show("Deleted resource.");
                 this.Hide();
             }
+            catch(ResourceDoesNotExistException ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
             catch(Exception)
             {
-                MessageBox.Show("Something went wrong. Check to see if your framework folder and base path are correctly set.");
+                 MessageBox.Show("Something went wrong. Make sure that your Url and Framework folder path are set correctly.");
             }
         }
 

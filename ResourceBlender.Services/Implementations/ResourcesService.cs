@@ -46,31 +46,6 @@ namespace ResourceBlender.Services.Implementations
       _fileService = fileService;
     }
 
-    public List<ResourceViewModel> GetResourceViewModelList()
-    {
-      List<ResourceViewModel> viewModelList = _resourceRepository.GetAllResources()
-                                             .Select(x =>
-                                             new ResourceViewModel
-                                             {
-                                               Id = x.Id,
-                                               ResourceString = x.ResourceString,
-                                               EnglishTranslation = x.EnglishTranslation,
-                                               RomanianTranslation = x.RomanianTranslation
-                                             }).ToList();
-      return viewModelList;
-    }
-
-    public async  Task AddResource(ResourceViewModel resourceViewModel)
-    {
-      var resourceExists = await CheckIfResourceWithNameExists(resourceViewModel.ResourceString);
-      if(resourceExists)
-      {
-        throw new ResourceAlreadyExistsException("This resource already exists");
-      }
-      var resourceEntity = TinyMapper.Map<Resource>(resourceViewModel);
-      _resourceRepository.AddResource(resourceEntity);
-    }
-
     public ResourceViewModel GetResourceById(int id)
     {
       if (id == 0)
@@ -86,10 +61,50 @@ namespace ResourceBlender.Services.Implementations
       }
     }
 
-    public void EditResource(ResourceViewModel resourceViewModel)
+    public async Task AddResource(ResourceViewModel resource)
     {
-      Resource resourceEntity = TinyMapper.Map<Resource>(resourceViewModel);
-      _resourceRepository.EditResource(resourceEntity);
+      var resourceToAdd = await FindResourceByName(resource.ResourceString);
+
+      if(resourceToAdd != null)
+      {
+        throw new ResourceAlreadyExistsException("Resource already exists.");
+      }
+
+      var path = BaseUri + "api/Resources/AddResource";
+      var jsonResource = JsonConvert.SerializeObject(resource);
+
+      HttpResponseMessage response = await _httpClient.PostAsync(path, new StringContent(jsonResource, Encoding.UTF8, "application/json"));
+    }
+
+    public async Task UpdateResource(ResourceViewModel resource)
+    {
+      var path = BaseUri + "api/Resources/UpdateResource";
+
+      var resourceToUpdate = await FindResourceByName(resource.ResourceString);
+
+      if(resourceToUpdate == null)
+      {
+        throw new ResourceDoesNotExistException("Resource does not exist.");
+      }
+
+      resource.Id = resourceToUpdate.Id;
+
+      var jsonResource = JsonConvert.SerializeObject(resource);
+      HttpResponseMessage response = await _httpClient.PostAsync(path, new StringContent(jsonResource, Encoding.UTF8, "application/json"));
+    }
+
+    public async Task DeleteResource(ResourceViewModel resource)
+    {
+      var path = BaseUri + "api/Resources/DeleteResource?resourceId=";
+
+      var resourceToDelete = await FindResourceByName(resource.ResourceString);
+      if(resourceToDelete == null)
+      {
+        throw new ResourceDoesNotExistException("Resource does not exist.");
+      }
+
+      var jsonResource = JsonConvert.SerializeObject(resourceToDelete.Id);
+      HttpResponseMessage response = await _httpClient.DeleteAsync(path + resourceToDelete.Id);
     }
 
     public void AddOrUpdateRomanianResourcesOnImport(HttpPostedFileBase resourceFile)
@@ -161,11 +176,6 @@ namespace ResourceBlender.Services.Implementations
       }
     }
 
-    public List<Resource> GetAllResources()
-    {
-      return _resourceRepository.GetAllResources().ToList();
-    }
-
     public async Task ExtractResourcesToLocalFolder(string localResourcesPath)
     {
       var path = BaseUri + "api/Resources/GetZip";
@@ -180,9 +190,10 @@ namespace ResourceBlender.Services.Implementations
         string completeFileName = Path.Combine(localResourcesPath, file.FullName);
         file.ExtractToFile(completeFileName, true);
       }
+      await GenerateJavascriptResources(localResourcesPath);
     }
 
-    public async Task GenerateJavascriptResources(string localResourcesPath)
+    private  async Task GenerateJavascriptResources(string localResourcesPath)
     {
       var resourcesDictionary = await GetResourcesDictionary();
       var content = _fileService.GetJavascriptFile(resourcesDictionary);
@@ -204,7 +215,7 @@ namespace ResourceBlender.Services.Implementations
 
     async  Task<Dictionary<string, string>> GetResourcesDictionary()
     {
-      var resources = await GetResourceViewModelListTask();
+      var resources = await GetResources();
       var resourceDictionary = new Dictionary<string, string>();
 
       foreach (var resource in resources)
@@ -215,35 +226,6 @@ namespace ResourceBlender.Services.Implementations
       return resourceDictionary;
     }
 
-    public async Task SendAndAddResource(ResourceViewModel resource)
-    {
-      var path = BaseUri + "api/Resources/AddResource";
-      var jsonResource = JsonConvert.SerializeObject(resource);
-
-      HttpResponseMessage response = await _httpClient.PostAsync(path, new StringContent(jsonResource, Encoding.UTF8, "application/json"));
-    }
-
-    public async Task SendAndUpdateResource(ResourceViewModel resource)
-    {
-      var path = BaseUri + "api/Resources/UpdateResource";
-
-      var resourceToUpdate = await FindResourceByName(resource.ResourceString);
-      resource.Id = resourceToUpdate.Id;
-
-      var jsonResource = JsonConvert.SerializeObject(resource);
-      HttpResponseMessage response = await _httpClient.PostAsync(path, new StringContent(jsonResource, Encoding.UTF8, "application/json"));
-    }
-
-    public async Task SendAndDeleteResource(ResourceViewModel resource)
-    {
-      var path = BaseUri + "api/Resources/DeleteResource?resourceId=";
-
-      var resourceToDelete = await FindResourceByName(resource.ResourceString);
-
-      var jsonResource = JsonConvert.SerializeObject(resourceToDelete.Id);
-      HttpResponseMessage response = await _httpClient.DeleteAsync(path + resourceToDelete.Id);
-    }
-
     public async Task<bool> CheckIfResourceWithNameExists(string resourceName)
     {
       var resource = await FindResourceByName(resourceName);
@@ -251,7 +233,7 @@ namespace ResourceBlender.Services.Implementations
       return exists;
     }
 
-    public async Task<Resource> FindResourceByName(string resourceName)
+    private async Task<Resource> FindResourceByName(string resourceName)
     {
       var queryString = resourceName;
       var path = BaseUri + "api/Resources/FindResourceByName?resourceName=" + resourceName;
@@ -265,7 +247,7 @@ namespace ResourceBlender.Services.Implementations
       return resource != null ? resource : null; 
     }
 
-    public async Task<List<ResourceViewModel>> GetResourceViewModelListTask()
+    public async Task<List<ResourceViewModel>> GetResources()
     {
       var path = BaseUri + "api/Resources/GetAllResources";
 

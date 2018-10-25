@@ -1,13 +1,19 @@
 ﻿@model ResourceBlender.Common.ViewModels.ResourceViewModel
 @{
-    ViewBag.Title = "Delete current resource";
+  ViewBag.Title = "Delete current resource";
 }
 
+@if (TempData["ErrorMessage"] != null)
+{
+  Html.RenderPartial("_Error", TempData["ErrorMessage"]);
+}
+else
+{
 <h2>Delete current resource</h2>
 
 <div class="container">
   <div>Are you sure you want to delete the current resource?</div>
-  @using (Html.BeginForm("DeleteResource", "Resources",new { id = Model.Id}, FormMethod.Post))
+  @using (Html.BeginForm("Delete", "Resources", new { id = Model.Id }, FormMethod.Post))
   {
     @Html.HiddenFor(model => model.Id)
     @Html.HiddenFor(model => model.ResourceString)
@@ -15,4 +21,5 @@
   }
   @Html.ActionLink("Go back to homepage", "Index", "Resources", new { @class = "btn btn-info" })
 </div>
+}
 

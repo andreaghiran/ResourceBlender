@@ -1,4 +1,5 @@
-﻿using ResourceBlender.Common.ViewModels;
+﻿using ResourceBlender.Common.Exceptions;
+using ResourceBlender.Common.ViewModels;
 using ResourceBlender.Services.Contracts;
 using ResourceBlender.WindowsForms.Services.Interfaces;
 using System;
@@ -38,26 +39,29 @@ namespace ResourceBlender.WindowsForms
         return;
       }
 
-      isFormValid =!(await resourceService.CheckIfResourceWithNameExists(resourceStringTextBox.Text));
-      if (!isFormValid)
+      try
       {
-        MessageBox.Show("A resource with the same name already exists.");
-        return;
+        ResourceViewModel resource = new ResourceViewModel();
+
+        resource.ResourceString = resourceStringTextBox.Text;
+        resource.EnglishTranslation = englishTranslationTextBox.Text;
+        resource.RomanianTranslation = romanianTranslationTextBox.Text;
+
+        await resourceService.AddResource(resource);
+        await resourceService.ExtractResourcesToLocalFolder(Properties.Settings.Default.ResourcesPath);
+
+        componentOperation.ClearTextBoxes(this);
+        MessageBox.Show("Added resource.");
+        this.Hide();
       }
-            
-      ResourceViewModel resource = new ResourceViewModel();
-
-      resource.ResourceString = resourceStringTextBox.Text;
-      resource.EnglishTranslation = englishTranslationTextBox.Text;
-      resource.RomanianTranslation = romanianTranslationTextBox.Text;
-
-      await resourceService.SendAndAddResource(resource);
-      await resourceService.ExtractResourcesToLocalFolder(Properties.Settings.Default.ResourcesPath);
-      await resourceService.GenerateJavascriptResources(Properties.Settings.Default.ResourcesPath);
-
-      componentOperation.ClearTextBoxes(this);
-      MessageBox.Show("Added resource.");
-      this.Hide();
+      catch(ResourceAlreadyExistsException ex)
+      {
+        MessageBox.Show(ex.Message);
+      }
+      catch(Exception)
+      {
+        MessageBox.Show("Something went wrong. Make sure that your Url and Framework folder path are set correctly.");
+      }
     }
 
     private void textBox_Validating(object sender, CancelEventArgs e)

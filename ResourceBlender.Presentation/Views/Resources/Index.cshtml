@@ -39,8 +39,8 @@
           <td>@resource.RomanianTranslation</td>
           <td>@resource.EnglishTranslation</td>
           <td>
-            @Html.ActionLink("Edit", "Update", new { resourceName = resource.ResourceString }, new { @class = "btn btn-default" })
-            @Html.ActionLink("Delete", "Delete", new { resourceName = resource.ResourceString }, new { @class = "btn btn-danger" })
+            @Html.ActionLink("Edit", "Update", new { resourceId = resource.Id}, new { @class = "btn btn-default" })
+            @Html.ActionLink("Delete", "Delete", new { resourceId = resource.Id }, new { @class = "btn btn-danger" })
           </td>
         </tr>
       }

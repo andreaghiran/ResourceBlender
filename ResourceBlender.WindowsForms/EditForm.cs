@@ -1,4 +1,5 @@
-﻿using ResourceBlender.Common.ViewModels;
+﻿using ResourceBlender.Common.Exceptions;
+using ResourceBlender.Common.ViewModels;
 using ResourceBlender.Services.Contracts;
 using ResourceBlender.WindowsForms.Services.Interfaces;
 using System;
@@ -35,27 +36,30 @@ namespace ResourceBlender.WindowsForms
         MessageBox.Show("The resource field is required.");
         return;
       }
-      
-      isFormValid = await resourcesService.CheckIfResourceWithNameExists(resourceTextBox.Text);
-      if (!isFormValid)
+
+      try
       {
-        MessageBox.Show("The resource could not be found.");
-        return;
+        ResourceViewModel resource = new ResourceViewModel();
+
+        resource.ResourceString = resourceTextBox.Text;
+        resource.EnglishTranslation = englishTranslationTextBox.Text;
+        resource.RomanianTranslation = romanianTranslationTextBox.Text;
+
+        await resourcesService.UpdateResource(resource);
+        await resourcesService.ExtractResourcesToLocalFolder(Properties.Settings.Default.ResourcesPath);
+
+        componentOperation.ClearTextBoxes(this);
+        MessageBox.Show("Updated resource.");
+        this.Hide();
       }
-      
-      ResourceViewModel resource = new ResourceViewModel();
-
-      resource.ResourceString = resourceTextBox.Text;
-      resource.EnglishTranslation = englishTranslationTextBox.Text;
-      resource.RomanianTranslation = romanianTranslationTextBox.Text;
-
-      await resourcesService.SendAndUpdateResource(resource);
-      await resourcesService.ExtractResourcesToLocalFolder(Properties.Settings.Default.ResourcesPath);
-      await resourcesService.GenerateJavascriptResources(Properties.Settings.Default.ResourcesPath);
-
-      componentOperation.ClearTextBoxes(this);
-      MessageBox.Show("Updated resource.");
-      this.Hide();
+      catch(ResourceDoesNotExistException ex)
+      {
+        MessageBox.Show(ex.Message);
+      }
+      catch(Exception)
+      {
+        MessageBox.Show("Something went wrong. Make sure that your Url and Framework folder path are set correctly.");
+      }
     }
 
     private void cancelButton_Click(object sender, EventArgs e)

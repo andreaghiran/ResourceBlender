@@ -1,5 +1,6 @@
 ﻿using Nelibur.ObjectMapper;
 using PagedList;
+using ResourceBlender.Common.Exceptions;
 using ResourceBlender.Common.ViewModels;
 using ResourceBlender.Domain;
 using ResourceBlender.Repository.Contracts;
@@ -41,20 +42,18 @@ namespace ResourceBlender.Presentation.Controllers
 
     public async Task<ActionResult> Index(int? page, string searchTerm = "")
     {
-      //var viewModel = _resourcesService.GetResourceViewModelList();
-      var viewModel = await _resourcesService.GetResourceViewModelListTask();
+      var viewModel = await _resourcesService.GetResources();
 
       if (viewModel == null)
       {
         return View(viewModel);
       }
       else
-
       {
         if (!string.IsNullOrEmpty(searchTerm))
         {
           searchTerm = searchTerm.ToLower();
-          viewModel = _resourcesService.GetResourceViewModelList().Where(x => x.ResourceString.ToLower().Contains(searchTerm) ||
+          viewModel = viewModel.Where(x => x.ResourceString.ToLower().Contains(searchTerm) ||
                                                                               x.EnglishTranslation.ToLower().Contains(searchTerm) ||
                                                                               x.RomanianTranslation.ToLower().Contains(searchTerm))
                                                                               .ToList();
@@ -115,16 +114,16 @@ namespace ResourceBlender.Presentation.Controllers
     {
       if (ModelState.IsValid)
       {
-        var resourceAlreadyExists = await _resourcesService.CheckIfResourceWithNameExists(model.ResourceString);
-
-        if(resourceAlreadyExists)
+        try
         {
-          TempData["ErrorMessage"] = "Resource already exists.";
+          await _resourcesService.AddResource(model);
+          return RedirectToAction("Index");
+        }
+        catch(ResourceAlreadyExistsException ex)
+        {
+          TempData["ErrorMessage"] = ex.Message;
           return View(model);
         }
-
-        await _resourcesService.SendAndAddResource(model);
-        return RedirectToAction("Index");
       }
       else
       {
@@ -132,14 +131,13 @@ namespace ResourceBlender.Presentation.Controllers
       }
     }
 
-    public async Task<ActionResult> Update(string resourceName)
+    public ActionResult Update(int resourceId)
     {
-      Resource resource = await _resourcesService.FindResourceByName(resourceName);
+      ResourceViewModel resource = _resourcesService.GetResourceById(resourceId);
 
       if (resource != null)
       {
-        ResourceViewModel viewModel = TinyMapper.Map<ResourceViewModel>(resource);
-        return View(viewModel);
+        return View(resource);
       }
 
       return RedirectToAction("Index");
@@ -150,7 +148,7 @@ namespace ResourceBlender.Presentation.Controllers
     {
       if (ModelState.IsValid)
       {
-        await _resourcesService.SendAndUpdateResource(model);
+        await _resourcesService.UpdateResource(model);
         return RedirectToAction("Index");
       }
       else
@@ -159,14 +157,13 @@ namespace ResourceBlender.Presentation.Controllers
       }
     }
 
-    public async Task<ActionResult> Delete(string resourceName)
+    public async Task<ActionResult> Delete(int resourceId)
     {
-      Resource resource = await _resourcesService.FindResourceByName(resourceName);
+      ResourceViewModel resource = _resourcesService.GetResourceById(resourceId);
 
       if(resource != null)
       {
-        ResourceViewModel viewModel = TinyMapper.Map<ResourceViewModel>(resource);
-        return View(viewModel);
+        return View(resource);
       }
       else
       {
@@ -175,10 +172,18 @@ namespace ResourceBlender.Presentation.Controllers
     }
 
     [HttpPost]
-    public async Task<ActionResult> DeleteResource(ResourceViewModel viewModel)
+    public async Task<ActionResult> Delete(ResourceViewModel viewModel)
     {
-      await _resourcesService.SendAndDeleteResource(viewModel);
-      return RedirectToAction("Index");
+      try
+      {
+        await _resourcesService.DeleteResource(viewModel);
+        return RedirectToAction("Index");
+      }
+      catch(ResourceDoesNotExistException ex)
+      {
+        TempData["ErrorMessage"] = ex.Message;
+        return View();
+      }
     }
 
     public ActionResult GenerateResources() => View();
