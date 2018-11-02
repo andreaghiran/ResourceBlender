@@ -50,6 +50,9 @@ namespace ResourceBlender.Presentation
       container.RegisterType<IResourcesService, ResourcesService>();
       container.RegisterType<IFileService, FileService>();
       container.RegisterType<IFileResourceRepository, FileResourceRepository>();
+      container.RegisterType<ITranslationRepository, TranslationRepository>();
+      container.RegisterType<ILanguageRepository, LanguageRepository>();
+      container.RegisterType<ILanguageService, LanguageService>();
     }
   }
 }

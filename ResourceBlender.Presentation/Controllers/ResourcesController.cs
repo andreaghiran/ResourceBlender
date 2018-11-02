@@ -1,10 +1,14 @@
-﻿using Nelibur.ObjectMapper;
+﻿using Ionic.Zip;
+using Nelibur.ObjectMapper;
 using PagedList;
 using ResourceBlender.Common.Exceptions;
 using ResourceBlender.Common.ViewModels;
 using ResourceBlender.Domain;
 using ResourceBlender.Repository.Contracts;
 using ResourceBlender.Services.Contracts;
+using System;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -18,13 +22,17 @@ namespace ResourceBlender.Presentation.Controllers
     private readonly IResourcesService _resourcesService;
     private readonly IResourceRepository _resourceRepository;
     private readonly IFileService _fileService;
+    private readonly ILanguageService _languageService;
     
-    public ResourcesController(IResourcesService resourcesService, IResourceRepository resourceRepository, IFileService fileService)
+    public ResourcesController(IResourcesService resourcesService, IResourceRepository resourceRepository, IFileService fileService, ILanguageService languageService)
     {
       _resourcesService = resourcesService;
       resourcesService.BaseUri = GetUrl();
       _resourceRepository = resourceRepository;
       _fileService = fileService;
+      _languageService = languageService;
+      _languageService.BaseUri = GetUrl();
+      _fileService.BaseUri = GetUrl();
     }
 
     string GetUrl()
@@ -54,8 +62,7 @@ namespace ResourceBlender.Presentation.Controllers
         {
           searchTerm = searchTerm.ToLower();
           viewModel = viewModel.Where(x => x.ResourceString.ToLower().Contains(searchTerm) ||
-                                                                              x.EnglishTranslation.ToLower().Contains(searchTerm) ||
-                                                                              x.RomanianTranslation.ToLower().Contains(searchTerm))
+                                                                              x.Translations.Any(t => t.TranslationValue.ToLower().Contains(searchTerm)))
                                                                               .ToList();
         }
 
@@ -72,23 +79,39 @@ namespace ResourceBlender.Presentation.Controllers
     [HttpPost]
     public ActionResult ImportResources(ImportFileViewModel model)
     {
-      if (model.files.Any(x => x == null))
-      {
-        ModelState.AddModelError("RequiredFile", "Both files are required.");
-      }
-      if (ModelState.IsValid)
-      {
+      //if (model.files.Any(x => x == null))
+      //{
+      //  ModelState.AddModelError("RequiredFile", "Both files are required.");
+      //}
+      //if (ModelState.IsValid)
+      //{
 
-        _resourcesService.AddOrUpdateRomanianResourcesOnImport(model.files.ElementAt(0));
-        _resourcesService.AddOrUpdateEnglishResourcesOnImport(model.files.ElementAt(1));
+      //  _resourcesService.AddOrUpdateRomanianResourcesOnImport(model.files.ElementAt(0));
+      //  _resourcesService.AddOrUpdateEnglishResourcesOnImport(model.files.ElementAt(1));
 
-        return RedirectToAction("Index");
-      }
-      else
+      //  return RedirectToAction("Index");
+      //}
+      //else
+      //{
+
+      //  return View(model);
+      //}
+
+      BinaryReader binaryReader = new BinaryReader(model.File.InputStream);
+      byte[] binaryData = binaryReader.ReadBytes(model.File.ContentLength);
+
+      MemoryStream memstream = new MemoryStream(binaryData);
+      using (ZipArchive archive = new ZipArchive(memstream))
       {
+        foreach (ZipArchiveEntry entry in archive.Entries)
+        {
+          //var stream = entry.Open();
+          _resourcesService.AddOrUpdateResourcesOnImport(entry);
 
-        return View(model);
+        }
       }
+
+      return View();
     }
 
     public PartialViewResult ShowErrorMessage(string message)
@@ -96,21 +119,22 @@ namespace ResourceBlender.Presentation.Controllers
       return PartialView("_Error");
     }
 
-    public ActionResult ExportResources()
-    {
-      var archive = _fileService.GetArchive();
-      return File(archive.ToArray(), "application/zip", "res.zip");
-    }
+   
 
     //public ActionResult ExportEnglishResources()
     //{
     //  return new FileGeneratingResult("Resources.resx", "application/xml", stream => _fileService.GenerateExportFile(stream, LanguageEnumeration.English));
     //}
 
-    public ActionResult AddResource() => View();
+    public async Task<ActionResult> AddResource()
+    {
+      ResourceTranslationViewModel viewModel = await _resourcesService.GetNewResourceViewModel();
+
+      return View(viewModel);
+    }
 
     [HttpPost]
-    public async Task<ActionResult> AddResource(ResourceViewModel model)
+    public async Task<ActionResult> AddResource(ResourceTranslationViewModel model)
     {
       if (ModelState.IsValid)
       {
@@ -119,7 +143,7 @@ namespace ResourceBlender.Presentation.Controllers
           await _resourcesService.AddResource(model);
           return RedirectToAction("Index");
         }
-        catch(ResourceAlreadyExistsException ex)
+        catch (ResourceAlreadyExistsException ex)
         {
           TempData["ErrorMessage"] = ex.Message;
           return View(model);
@@ -133,7 +157,7 @@ namespace ResourceBlender.Presentation.Controllers
 
     public ActionResult Update(int resourceId)
     {
-      ResourceViewModel resource = _resourcesService.GetResourceById(resourceId);
+      ResourceTranslationViewModel resource = _resourcesService.GetResourceById(resourceId);
 
       if (resource != null)
       {
@@ -144,7 +168,7 @@ namespace ResourceBlender.Presentation.Controllers
     }
 
     [HttpPost]
-    public async Task<ActionResult> Update(ResourceViewModel model)
+    public async Task<ActionResult> Update(ResourceTranslationViewModel model)
     {
       if (ModelState.IsValid)
       {
@@ -153,15 +177,16 @@ namespace ResourceBlender.Presentation.Controllers
       }
       else
       {
-        return View(model);
+        TempData["ValidationMessage"] = "All translations are required.";
+        return RedirectToAction("Update", new { resourceId = model.ResourceId });
       }
     }
 
-    public async Task<ActionResult> Delete(int resourceId)
+    public ActionResult Delete(int resourceId)
     {
-      ResourceViewModel resource = _resourcesService.GetResourceById(resourceId);
+      ResourceTranslationViewModel resource = _resourcesService.GetResourceById(resourceId);
 
-      if(resource != null)
+      if (resource != null)
       {
         return View(resource);
       }
@@ -172,14 +197,14 @@ namespace ResourceBlender.Presentation.Controllers
     }
 
     [HttpPost]
-    public async Task<ActionResult> Delete(ResourceViewModel viewModel)
+    public async Task<ActionResult> Delete(ResourceTranslationViewModel viewModel)
     {
       try
       {
         await _resourcesService.DeleteResource(viewModel);
         return RedirectToAction("Index");
       }
-      catch(ResourceDoesNotExistException ex)
+      catch (ResourceDoesNotExistException ex)
       {
         TempData["ErrorMessage"] = ex.Message;
         return View();
@@ -187,5 +212,11 @@ namespace ResourceBlender.Presentation.Controllers
     }
 
     public ActionResult GenerateResources() => View();
+
+    public async Task<ActionResult> ExportResources()
+    {
+      var archive = await _fileService.GetArchive();
+      return File(archive.ToArray(), "application/zip", "res.zip");
+    }
   }
 }

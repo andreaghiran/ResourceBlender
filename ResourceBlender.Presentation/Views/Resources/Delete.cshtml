@@ -1,4 +1,4 @@
-﻿@model ResourceBlender.Common.ViewModels.ResourceViewModel
+﻿@model ResourceBlender.Common.ViewModels.ResourceTranslationViewModel
 @{
   ViewBag.Title = "Delete current resource";
 }
@@ -9,13 +9,13 @@
 }
 else
 {
-<h2>Delete current resource</h2>
+<h2>Delete current resource: @Model.ResourceString</h2>
 
 <div class="container">
   <div>Are you sure you want to delete the current resource?</div>
-  @using (Html.BeginForm("Delete", "Resources", new { id = Model.Id }, FormMethod.Post))
+  @using (Html.BeginForm("Delete", "Resources"@*, new { id = Model.Id }*@, FormMethod.Post))
   {
-    @Html.HiddenFor(model => model.Id)
+    @Html.HiddenFor(model => model.ResourceId)
     @Html.HiddenFor(model => model.ResourceString)
     <input type="submit" value="Yes" class="btn btn-danger" />
   }

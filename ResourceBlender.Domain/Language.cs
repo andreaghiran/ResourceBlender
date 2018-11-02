@@ -12,16 +12,17 @@ namespace ResourceBlender.Domain
     using System;
     using System.Collections.Generic;
     
-    public partial class Resource
+    public partial class Language
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public Resource()
+        public Language()
         {
             this.Translations = new HashSet<Translation>();
         }
     
         public int Id { get; set; }
-        public string ResourceString { get; set; }
+        public string LanguageString { get; set; }
+        public string Code { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Translation> Translations { get; set; }

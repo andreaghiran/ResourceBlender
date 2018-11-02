@@ -1,4 +1,4 @@
-﻿@model PagedList.IPagedList<ResourceBlender.Common.ViewModels.ResourceViewModel>
+﻿@model PagedList.IPagedList<ResourceBlender.Common.ViewModels.ResourceTranslationViewModel>
 @using PagedList.Mvc;
 @{
   ViewBag.Title = "Current Resources";
@@ -26,27 +26,56 @@
   }
   else
   {
-    <table class="table">
+    @*<table class="table">
       <tr>
         <th>Resource</th>
         <th>Romanian Translation</th>
         <th>English Translation</th>
+      </tr>*@
+      @*@foreach (var resource in Model)
+    {
+      <tr>
+        <td>@resource.ResourceString</td>
+        <td>@resource.RomanianTranslation</td>
+        <td>@resource.EnglishTranslation</td>
+        <td>
+          @Html.ActionLink("Edit", "Update", new { resourceId = resource.Id }, new { @class = "btn btn-default" })
+          @Html.ActionLink("Delete", "Delete", new { resourceId = resource.Id }, new { @class = "btn btn-danger" })
+        </td>
       </tr>
+    }*@
+
+    <table class="table">
+      <tr>
+        <th>Resource</th>
+        @foreach (var resource in Model)
+        {
+          foreach (var language in resource.AvailableLanguages)
+          {
+            <th>@language</th>
+          }
+          break;
+        }
+      </tr>
+
       @foreach (var resource in Model)
       {
-        <tr>
-          <td>@resource.ResourceString</td>
-          <td>@resource.RomanianTranslation</td>
-          <td>@resource.EnglishTranslation</td>
+      <tr>
+        <td>@resource.ResourceString</td>
+        @foreach (var translation in resource.Translations)
+        {
+          <td>@translation.TranslationValue</td>
+        }
           <td>
-            @Html.ActionLink("Edit", "Update", new { resourceId = resource.Id}, new { @class = "btn btn-default" })
-            @Html.ActionLink("Delete", "Delete", new { resourceId = resource.Id }, new { @class = "btn btn-danger" })
+            @Html.ActionLink("Edit", "Update", new { resourceId = resource.ResourceId }, new { @class = "btn btn-default" })
+            @Html.ActionLink("Delete", "Delete", new { resourceId = resource.ResourceId }, new { @class = "btn btn-danger" })
           </td>
-        </tr>
+      </tr>
       }
+
     </table>
   }
-  Page&nbsp;@(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
-  @Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchTerm = Request.QueryString["searchTerm"] }))
+      Page&nbsp;@(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+      @Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchTerm = Request.QueryString["searchTerm"] }))
 </div>
 

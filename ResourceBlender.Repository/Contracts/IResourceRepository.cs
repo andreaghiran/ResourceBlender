@@ -9,7 +9,7 @@ namespace ResourceBlender.Repository.Contracts
 {
   public interface IResourceRepository
   {
-    List<Resource> GetAllResources();
+    List<Resource> GetResources();
     void AddResource(Resource resource);
     Resource GetResourceById(int id);
     void EditResource(Resource resource);

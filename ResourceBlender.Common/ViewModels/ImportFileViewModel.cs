@@ -10,11 +10,13 @@ namespace ResourceBlender.Common.ViewModels
 {
   public class ImportFileViewModel
   {
-    public ImportFileViewModel()
-    {
-      files = new List<HttpPostedFileBase>();
-    }
+    //public ImportFileViewModel()
+    //{
+    //  files = new List<HttpPostedFileBase>();
+    //}
 
-    public List<HttpPostedFileBase> files { get; set; }
+    //public List<HttpPostedFileBase> files { get; set; }
+
+    public HttpPostedFileBase File { get; set; }
   }
 }

@@ -64,7 +64,6 @@ namespace ResourceBlender.WindowsForms
             try
             {
                 await resourcesService.ExtractResourcesToLocalFolder(Properties.Settings.Default.ResourcesPath);
-                await resourcesService.GenerateJavascriptResources(Properties.Settings.Default.ResourcesPath);
                 MessageBox.Show("Generated resources");
             }
             catch(Exception)

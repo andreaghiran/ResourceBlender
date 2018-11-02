@@ -25,6 +25,8 @@ namespace ResourceBlender.Domain
             throw new UnintentionalCodeFirstException();
         }
     
+        public virtual DbSet<Language> Languages { get; set; }
         public virtual DbSet<Resource> Resources { get; set; }
+        public virtual DbSet<Translation> Translations { get; set; }
     }
 }

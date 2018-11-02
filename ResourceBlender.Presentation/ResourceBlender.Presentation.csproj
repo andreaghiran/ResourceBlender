@@ -211,7 +211,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApiControllers\LanguagesController.cs" />
     <Compile Include="ApiControllers\ResourcesController.cs" />
+    <Compile Include="ApiControllers\TranslationsController.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />

@@ -18,6 +18,8 @@ namespace ResourceBlender.Presentation.App_Start
           defaults: new { id = RouteParameter.Optional }
       );
 
+      config.Formatters.JsonFormatter.SerializerSettings.ReferenceLoopHandling
+= Newtonsoft.Json.ReferenceLoopHandling.Ignore;
       //config.Routes.MapHttpRoute(
       //    name: "DefaultApiWithAction",
       //    routeTemplate: "api/{controller}/{action}/{id}",

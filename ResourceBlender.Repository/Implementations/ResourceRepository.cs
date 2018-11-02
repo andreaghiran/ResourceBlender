@@ -13,13 +13,15 @@ namespace ResourceBlender.Repository.Implementations
   public class ResourceRepository: IResourceRepository
   {
     private ResourceBlenderEntities _dbContext { get; set; }
+    private ITranslationRepository translationRepository { get; set; }
 
-    public ResourceRepository(ResourceBlenderEntities dbContext)
+    public ResourceRepository(ResourceBlenderEntities dbContext, ITranslationRepository _translationRepository)
     {
       _dbContext = dbContext;
+      translationRepository = _translationRepository;
     }
 
-    public List<Resource> GetAllResources()
+    public List<Resource> GetResources()
     {
       return _dbContext.Resources.ToList();
     }
@@ -37,21 +39,16 @@ namespace ResourceBlender.Repository.Implementations
 
     public void EditResource(Resource resource)
     {
-      Resource updatedResource = _dbContext.Resources.Where(x => x.Id == resource.Id).FirstOrDefault();
-
-      if (updatedResource != null)
+      foreach (var translation in resource.Translations)
       {
-        updatedResource.ResourceString = resource.ResourceString != string.Empty ? resource.ResourceString : updatedResource.ResourceString;
-        updatedResource.RomanianTranslation = resource.RomanianTranslation != string.Empty ? resource.RomanianTranslation : updatedResource.RomanianTranslation;
-        updatedResource.EnglishTranslation = resource.EnglishTranslation != string.Empty ? resource.EnglishTranslation : updatedResource.EnglishTranslation;
-        _dbContext.SaveChanges();
+        translationRepository.UpdateTranslation(translation);
       }
     }
 
     public void DeleteResource(int id)
     {
-      var resource = _dbContext.Resources.Where(x => x.Id == id).FirstOrDefault();
-      if(resource != null)
+      var resource = _dbContext.Resources.Include(x => x.Translations).Where(x => x.Id == id).FirstOrDefault();
+      if (resource != null)
       {
         _dbContext.Resources.Remove(resource);
         _dbContext.SaveChanges();

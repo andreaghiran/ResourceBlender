@@ -63,8 +63,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Contracts\IFileService.cs" />
+    <Compile Include="Contracts\ILanguageService.cs" />
     <Compile Include="Contracts\IResourcesService.cs" />
     <Compile Include="Implementations\FileService.cs" />
+    <Compile Include="Implementations\LanguageService.cs" />
     <Compile Include="Implementations\ResourcesService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

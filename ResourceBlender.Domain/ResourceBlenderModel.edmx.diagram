@@ -5,7 +5,11 @@
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
       <Diagram DiagramId="1a78ec80d3e14bd3b1b934f622a2a27d" Name="Diagram1">
-        <EntityTypeShape EntityType="ResourcesModel.Resource" Width="1.5" PointX="0.75" PointY="0.75" />
+        <EntityTypeShape EntityType="ResourcesModel.Language" Width="1.5" PointX="0.75" PointY="1.125" />
+        <EntityTypeShape EntityType="ResourcesModel.Resource" Width="1.5" PointX="0.75" PointY="5.25" />
+        <EntityTypeShape EntityType="ResourcesModel.Translation" Width="1.5" PointX="3" PointY="0.875" />
+        <AssociationConnector Association="ResourcesModel.FK_Translations_Languages" />
+        <AssociationConnector Association="ResourcesModel.FK_Translations_Resources" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

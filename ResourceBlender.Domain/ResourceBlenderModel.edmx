@@ -5,46 +5,169 @@
     <!-- SSDL content -->
     <edmx:StorageModels>
     <Schema Namespace="ResourcesModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Languages">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LanguageString" Type="nvarchar" MaxLength="50" />
+          <Property Name="Code" Type="nvarchar" MaxLength="50" />
+        </EntityType>
         <EntityType Name="Resources">
           <Key>
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="ResourceString" Type="nvarchar(max)" />
-          <Property Name="RomanianTranslation" Type="nvarchar(max)" />
-          <Property Name="EnglishTranslation" Type="nvarchar(max)" />
         </EntityType>
+        <EntityType Name="Translations">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Language_Id" Type="int" Nullable="false" />
+          <Property Name="Resource_Id" Type="int" Nullable="false" />
+          <Property Name="TranslationString" Type="nvarchar" MaxLength="50" />
+        </EntityType>
+        <Association Name="FK_Translations_Languages">
+          <End Role="Languages" Type="Self.Languages" Multiplicity="1" />
+          <End Role="Translations" Type="Self.Translations" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Languages">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Translations">
+              <PropertyRef Name="Language_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Translations_Resources">
+          <End Role="Resources" Type="Self.Resources" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Translations" Type="Self.Translations" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Resources">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Translations">
+              <PropertyRef Name="Resource_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityContainer Name="ResourcesModelStoreContainer">
+          <EntitySet Name="Languages" EntityType="Self.Languages" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Resources" EntityType="Self.Resources" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Translations" EntityType="Self.Translations" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_Translations_Languages" Association="Self.FK_Translations_Languages">
+            <End Role="Languages" EntitySet="Languages" />
+            <End Role="Translations" EntitySet="Translations" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Translations_Resources" Association="Self.FK_Translations_Resources">
+            <End Role="Resources" EntitySet="Resources" />
+            <End Role="Translations" EntitySet="Translations" />
+          </AssociationSet>
         </EntityContainer>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="ResourcesModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
         <EntityContainer Name="ResourceBlenderEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Languages" EntityType="ResourcesModel.Language" />
           <EntitySet Name="Resources" EntityType="ResourcesModel.Resource" />
+          <EntitySet Name="Translations" EntityType="ResourcesModel.Translation" />
+          <AssociationSet Name="FK_Translations_Languages" Association="ResourcesModel.FK_Translations_Languages">
+            <End Role="Language" EntitySet="Languages" />
+            <End Role="Translation" EntitySet="Translations" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Translations_Resources" Association="ResourcesModel.FK_Translations_Resources">
+            <End Role="Resource" EntitySet="Resources" />
+            <End Role="Translation" EntitySet="Translations" />
+          </AssociationSet>
         </EntityContainer>
+        <EntityType Name="Language">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LanguageString" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Code" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Translations" Relationship="ResourcesModel.FK_Translations_Languages" FromRole="Language" ToRole="Translation" />
+        </EntityType>
         <EntityType Name="Resource">
           <Key>
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="ResourceString" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="RomanianTranslation" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="EnglishTranslation" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Translations" Relationship="ResourcesModel.FK_Translations_Resources" FromRole="Resource" ToRole="Translation" />
         </EntityType>
-      </Schema>
+        <EntityType Name="Translation">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Language_Id" Type="Int32" Nullable="false" />
+          <Property Name="Resource_Id" Type="Int32" Nullable="false" />
+          <Property Name="TranslationString" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Language" Relationship="ResourcesModel.FK_Translations_Languages" FromRole="Translation" ToRole="Language" />
+          <NavigationProperty Name="Resource" Relationship="ResourcesModel.FK_Translations_Resources" FromRole="Translation" ToRole="Resource" />
+        </EntityType>
+        <Association Name="FK_Translations_Languages">
+          <End Type="ResourcesModel.Language" Role="Language" Multiplicity="1" />
+          <End Type="ResourcesModel.Translation" Role="Translation" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Language">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Translation">
+              <PropertyRef Name="Language_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Translations_Resources">
+          <End Type="ResourcesModel.Resource" Role="Resource" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="ResourcesModel.Translation" Role="Translation" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Resource">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Translation">
+              <PropertyRef Name="Resource_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="ResourcesModelStoreContainer" CdmEntityContainer="ResourceBlenderEntities">
+          <EntitySetMapping Name="Languages">
+            <EntityTypeMapping TypeName="ResourcesModel.Language">
+              <MappingFragment StoreEntitySet="Languages">
+                <ScalarProperty Name="Code" ColumnName="Code" />
+                <ScalarProperty Name="LanguageString" ColumnName="LanguageString" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="Resources">
             <EntityTypeMapping TypeName="ResourcesModel.Resource">
               <MappingFragment StoreEntitySet="Resources">
-                <ScalarProperty Name="EnglishTranslation" ColumnName="EnglishTranslation" />
-                <ScalarProperty Name="RomanianTranslation" ColumnName="RomanianTranslation" />
                 <ScalarProperty Name="ResourceString" ColumnName="ResourceString" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Translations">
+            <EntityTypeMapping TypeName="ResourcesModel.Translation">
+              <MappingFragment StoreEntitySet="Translations">
+                <ScalarProperty Name="TranslationString" ColumnName="TranslationString" />
+                <ScalarProperty Name="Resource_Id" ColumnName="Resource_Id" />
+                <ScalarProperty Name="Language_Id" ColumnName="Language_Id" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>

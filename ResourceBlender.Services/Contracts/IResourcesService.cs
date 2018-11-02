@@ -2,6 +2,8 @@
 using ResourceBlender.Domain;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -12,17 +14,19 @@ namespace ResourceBlender.Services.Contracts
 {
   public interface IResourcesService
   {
-    Task<List<ResourceViewModel>> GetResources();
-    ResourceViewModel GetResourceById(int id);
-    Task AddResource(ResourceViewModel resource);
-    Task UpdateResource(ResourceViewModel resource);
-    Task DeleteResource(ResourceViewModel resource);
+    Task<List<ResourceTranslationViewModel>> GetResources();
+    ResourceTranslationViewModel GetResourceById(int id);
+    Task AddResource(ResourceTranslationViewModel resource);
+    Task UpdateResource(ResourceTranslationViewModel resource);
+    Task DeleteResource(ResourceTranslationViewModel resource);
 
-    void AddOrUpdateRomanianResourcesOnImport(HttpPostedFileBase resourceFile);
-    void AddOrUpdateEnglishResourcesOnImport(HttpPostedFileBase resourceFile);
+    Task<ResourceTranslationViewModel> GetNewResourceViewModel();
+    //void AddOrUpdateRomanianResourcesOnImport(HttpPostedFileBase resourceFile);
+    //void AddOrUpdateEnglishResourcesOnImport(HttpPostedFileBase resourceFile);
 
-    Task ExtractResourcesToLocalFolder(string path);
+    //Task ExtractResourcesToLocalFolder(string path);
 
+    void AddOrUpdateResourcesOnImport(ZipArchiveEntry entry);
     string BaseUri { get; set; }
   }
 }
